@@ -4,6 +4,7 @@ import datetime
 import json
 import hashlib
 import flask
+import os
 from flask import Flask
 from flask import request
 from flask import jsonify
@@ -23,7 +24,6 @@ def reset():
 
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
-    reset()
     data = request.get_data()
     headers = request.headers
     filename = headers['filename']
@@ -48,11 +48,42 @@ def file_upload():
 
 @application.route('/server/file/download', methods=['POST'])
 def file_download():
-    reset()
     data = request.get_json(force=True)
     ticket = data.get('auth_token')
-    return flask.send_file("672058a02be07e598490957388e83bec")
+    filename = data.get('filename')
+    directory_name = data.get('directory')
 
+    m = hashlib.md5()
+    m.update(directory_name)
+    directory = mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+    if not directory:
+        return jsonify({"success":False})
+
+    file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
+    if not file:
+        return jsonify({"success":False})
+
+    return flask.send_file(file["reference"])
+
+@application.route('/server/file/delete', methods=['POST'])
+def file_delete():
+    data = request.get_json(force=True)
+    ticket = data.get('auth_token')
+    filename = data.get('filename')
+    directory_name = data.get('directory')
+
+    m = hashlib.md5()
+    m.update(directory_name)
+    directory = mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+    if not directory:
+        return jsonify({"success": False})
+
+    file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
+    if not file:
+        return jsonify({"success": False})
+
+    os.remove(file["reference"])
+    return jsonify({"success":True})
 
 
 class File:
@@ -83,7 +114,6 @@ class Directory:
         db.directories.insert({"name":name, "reference": m.hexdigest()})
         directory = db.directories.find_one({"name":name, "reference": m.hexdigest()})
         return directory
-
 
 
 if __name__ == '__main__':
