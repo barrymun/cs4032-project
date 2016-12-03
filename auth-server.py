@@ -1,4 +1,5 @@
 import base64
+import md5
 import datetime
 
 from flask import Flask
@@ -19,11 +20,11 @@ AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
 def client_create():
     db = mongo.db.dist
     db.clients.drop()
-    result = db.clients.insert_one(
+    result = db.clients.insert(
         {"client_id": "1"
             , "session_key": "928F767EADE2DBFD62BFCD65B8E21"
-            , "session_key_expires": (datetime.datetime.utcnow() +
-                                      datetime.timedelta(seconds=60 * 60 * 4)).strftime('%Y-%m-%d %H:%M:%S')
+            , "session_key_expires": (datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 4)).strftime(
+            '%Y-%m-%d %H:%M:%S')
             , "public_key": "0123456789abcdef0123456789abcdef"
             , "password": "0dP1jO2zS7111111"}
     )
@@ -37,12 +38,10 @@ def client_auth():
     print(encrypted_password)
     client = Authentication.auth(client_id, encrypted_password)
     if client:
-        return jsonify({'success':True,
-                        'session_key':client['session_key'],
-                        'session_key_expires':client['session_key_expires']}
-        )
+        return jsonify({'success':True, 'session_key':client['session_key'], 'session_key_expires':client['session_key_expires']})
     else:
         return jsonify({'success':False})
+
 
 # File storage servers
 class Server:
@@ -57,7 +56,7 @@ class Server:
     @staticmethod
     def create(host, port):
         db = mongo.db.dist
-        result = db.servers.insert_one({"host":host, })
+        result = db.servers.insert({"host":host, })
 
 
 class Authentication:
@@ -93,13 +92,12 @@ class Authentication:
         client = Authentication.get_client(client_id)
         client_public_key = client['public_key']
         decoded_password = Authentication.decode(client_public_key, encrypted_password)
-        if decoded_password == client['password']:
+        if (decoded_password == client['password']):
             session_key = md5.new().hexdigest()
-            session_key_expires = (datetime.datetime.utcnow() +
-                                   datetime.timedelta(seconds=60*250)).strftime('%Y-%m-%d %H:%M:%S')
+            session_key_expires = (datetime.datetime.utcnow() + datetime.timedelta(seconds=60*250)).strftime('%Y-%m-%d %H:%M:%S')
             client['session_key'] = session_key
             client['session_key_expires'] = session_key_expires
-            if Authentication.update_client(client_id, client):
+            if (Authentication.update_client(client_id, client) != False):
                 return client
             else:
                 return False
