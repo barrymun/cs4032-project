@@ -1,3 +1,3 @@
-from flask.ext.pymongo import PyMongo
-
-class Authentication:
+# from flask.ext.pymongo import PyMongo
+#
+# class Authentication:
