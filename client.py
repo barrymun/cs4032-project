@@ -20,6 +20,7 @@ headers = {'Content-type': 'application/json'}
 payload = {'client_id': client_id, 'encrypted_password': encrypted_password}
 r = requests.post("http://127.0.0.1:5000/client/auth", data=json.dumps(payload), headers=headers)
 response_body = r.text
+print response_body
 encoded_token = json.loads(response_body)["token"]
 
 cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # never use ECB in strong systems obviously

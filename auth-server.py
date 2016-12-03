@@ -1,16 +1,20 @@
 import base64
 import md5
+import hashlib
 import datetime
-
+import json
+import os
+import random
+import string
 from flask import Flask
 from flask import request
 from flask import jsonify
-from flask_pymongo import PyMongo
+from flask.ext.pymongo import PyMongo
 from Crypto.Cipher import AES
 
 application = Flask(__name__)
-
 mongo = PyMongo(application)
+
 
 CLIENT_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
 AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
@@ -35,10 +39,14 @@ def client_auth():
     data = request.get_json(force=True)
     client_id = data.get('client_id')
     encrypted_password = data.get('encrypted_password')
-    print(encrypted_password)
     client = Authentication.auth(client_id, encrypted_password)
     if client:
-        return jsonify({'success':True, 'session_key':client['session_key'], 'session_key_expires':client['session_key_expires']})
+        token = json.dumps({'session_key':client['session_key'],
+                            'session_key_expires':client['session_key_expires'],
+                            'server_host': "127.0.0.1",
+                            'server_port': "8093",
+                            'ticket': Authentication.encode(AUTH_SERVER_STORAGE_SERVER_KEY, client['session_key'])})
+        return jsonify({'success':True, 'token':Authentication.encode(client['public_key'], token)})
     else:
         return jsonify({'success':False})
 
@@ -56,7 +64,8 @@ class Server:
     @staticmethod
     def create(host, port):
         db = mongo.db.dist
-        result = db.servers.insert({"host":host, })
+        result = db.servers.insert_one({"host":host, })
+
 
 
 class Authentication:
@@ -64,16 +73,17 @@ class Authentication:
         pass
 
     @staticmethod
-    def get_client(client_identifier):
-        for item in mongo.db.dist.clients.find():
-            print item
+    def pad(s):
+        return s + b" " * (AES.block_size - len(s) % AES.block_size)
 
+    @staticmethod
+    def get_client(client_identifier):
         return mongo.db.dist.clients.find_one({'client_id': client_identifier})
 
     @staticmethod
-    def encode(key, password):
+    def encode(key, decoded):
         cipher = AES.new(key, AES.MODE_ECB)  # never use ECB in strong systems obviously
-        encoded = base64.b64encode(cipher.encrypt(password))
+        encoded = base64.b64encode(cipher.encrypt(Authentication.pad(decoded)))
         return encoded
 
     @staticmethod
@@ -93,7 +103,7 @@ class Authentication:
         client_public_key = client['public_key']
         decoded_password = Authentication.decode(client_public_key, encrypted_password)
         if (decoded_password == client['password']):
-            session_key = md5.new().hexdigest()
+            session_key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
             session_key_expires = (datetime.datetime.utcnow() + datetime.timedelta(seconds=60*250)).strftime('%Y-%m-%d %H:%M:%S')
             client['session_key'] = session_key
             client['session_key_expires'] = session_key_expires

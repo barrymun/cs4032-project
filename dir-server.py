@@ -5,11 +5,14 @@ import json
 import hashlib
 import flask
 import os
+import threading
+import requests
 from flask import Flask
 from flask import request
 from flask import jsonify
 from flask import Response
 from flask.ext.pymongo import PyMongo
+from Crypto.Cipher import AES
 
 application = Flask(__name__)
 mongo = PyMongo(application)
@@ -22,12 +25,45 @@ def reset():
     db.directories.drop()
     db.files.drop()
 
+def upload_async(file, client_request):
+    with application.app_context():
+        db = mongo.db.server
+        servers = db.servers.find()
+        for server in servers:
+            host = server["host"]
+            port = server["port"]
+            # make POST request to upload file to server, using
+            # same client request
+            data = open(file['reference'], 'rb').read()
+
+            headers = {'ticket': client_request['ticket'],
+                       'directory': client_request['directory'],
+                       'filename': client_request['filename']}
+            r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data,
+                              headers=headers)
+
+
+def delete_async(file):
+    with application.app_context():
+        db = mongo.db.server
+        servers = db.servers.find()
+        for server in servers:
+            host = server["host"]
+            port = server["port"]
+            # make POST request to delete file from server, using
+            # same client request
+
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
     data = request.get_data()
     headers = request.headers
-    filename = headers['filename']
-    directory_name = headers['directory']
+
+    filename_encoded = headers['filename']
+    directory_name_encoded = headers['directory']
+    ticket = headers['ticket']
+    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = Authentication.decode(session_key, directory_name_encoded)
+    filename = Authentication.decode(session_key, filename_encoded)
 
     m = hashlib.md5()
     m.update(directory_name)
@@ -42,14 +78,16 @@ def file_upload():
         file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
     with open(file["reference"], "wb") as fo:
         fo.write(data)
-
+    thr = threading.Thread(target=upload_async, args=(file, {}), kwargs={})
+    thr.start()  # will run "foo"
     return jsonify({'success':True})
 
 
 @application.route('/server/file/download', methods=['POST'])
 def file_download():
     data = request.get_json(force=True)
-    ticket = data.get('auth_token')
+    authentication = data.get('authentication')
+
     filename = data.get('filename')
     directory_name = data.get('directory')
 
@@ -83,7 +121,31 @@ def file_delete():
         return jsonify({"success": False})
 
     os.remove(file["reference"])
+    pool.apply_async(delete_async, [file, {}], None)
     return jsonify({"success":True})
+
+
+class Authentication:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def pad(s):
+        return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
+
+    @staticmethod
+    def encode(key, decoded):
+        cipher = AES.new(key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+        encoded = base64.b64encode(cipher.encrypt(Authentication.pad(decoded)))
+        return encoded
+
+    @staticmethod
+    def decode(key, encoded):
+        cipher = AES.new(key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+        decoded = cipher.decrypt(base64.b64decode(encoded))
+        return decoded.strip()
+
+
 
 
 class File:
