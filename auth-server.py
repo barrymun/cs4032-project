@@ -10,7 +10,7 @@ import string
 from flask import Flask
 from flask import request
 from flask import jsonify
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 from Crypto.Cipher import AES
 
 application = Flask(__name__)
