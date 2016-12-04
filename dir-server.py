@@ -57,27 +57,33 @@ def delete_async(file):
 def file_upload():
     data = request.get_data()
     headers = request.headers
+    db = mongo.db.server
 
     filename_encoded = headers['filename']
     directory_name_encoded = headers['directory']
+    server_reference_encoded = headers['server_reference']
     ticket = headers['ticket']
     session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
     directory_name = Authentication.decode(session_key, directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
+    server_reference = Authentication.decode(session_key, server_reference_encoded)
 
     m = hashlib.md5()
     m.update(directory_name)
-    if not mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()}):
+
+    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest()}):
         directory = Directory.create(directory_name)
     else:
-        directory = mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+        directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
 
-    if not mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']}):
-        file = File.create(filename, directory['name'], directory['reference'])
+    if not db.files.find_one({"name": filename, "directory": directory['reference']}):
+        file = File.create(filename, directory['name'], directory['reference'], server_reference)
     else:
-        file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
+        file = db.files.find_one({"name": filename, "directory": directory['reference']})
+
     with open(file["reference"], "wb") as fo:
         fo.write(data)
+
     thr = threading.Thread(target=upload_async, args=(file, {}), kwargs={})
     thr.start()  # will run "foo"
     return jsonify({'success':True})
@@ -146,21 +152,20 @@ class Authentication:
         return decoded.strip()
 
 
-
-
 class File:
     def __init__(self):
         pass
 
     @staticmethod
-    def create(name, directory_name, directory_reference):
+    def create(name, directory_name, directory_reference, server_reference):
         db = mongo.db.server
         m = hashlib.md5()
         m.update(directory_reference + "/" + directory_name)
-        db.files.insert({"name":name,
-                                "directory":directory_reference,
-                                "reference": m.hexdigest(),
-                                "updated_at": datetime.datetime.utcnow()})
+        db.files.insert({"name":name
+            ,"directory": directory_reference
+            ,"server": server_reference
+            ,"reference": m.hexdigest()
+            ,"updated_at": datetime.datetime.utcnow()})
         file = db.files.find_one({"reference":m.hexdigest()})
         return file
 
