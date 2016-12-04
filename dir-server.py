@@ -7,11 +7,12 @@ import flask
 import os
 import threading
 import requests
+
 from flask import Flask
 from flask import request
 from flask import jsonify
 from flask import Response
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 from pymongo import MongoClient
 from Crypto.Cipher import AES
 
@@ -21,6 +22,7 @@ mongo = PyMongo(application)
 '''
 Set up global variables here
 '''
+
 mongo_server = "127.0.0.1"
 mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
@@ -34,9 +36,11 @@ AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
 SERVER_HOST = None
 SERVER_PORT = None
 
+
 def reset():
     db.directories.drop()
     db.files.drop()
+
 
 def upload_async(file, client_request):
     with application.app_context():
@@ -54,22 +58,32 @@ def upload_async(file, client_request):
             headers = {'ticket': client_request['ticket'],
                        'directory': client_request['directory'],
                        'filename': client_request['filename']}
-            r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data,
-                              headers=headers)
+            r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data, headers=headers)
 
 
-def delete_async(file):
+def delete_async(file, client_request):
     with application.app_context():
         servers = db.servers.find()
         for server in servers:
             host = server["host"]
             port = server["port"]
+            if (host == SERVER_HOST and port == SERVER_PORT):
+                continue
             # make POST request to delete file from server, using
             # same client request
+            data = open(file['reference'], 'rb').read()
+            print(client_request)
+
+            headers = {'ticket': client_request['ticket'],
+                       'directory': client_request['directory'],
+                       'filename': client_request['filename']}
+            r = requests.post("http://" + host + ":" + port + "/server/file/delete", data=data, headers=headers)
+
 
 def get_current_server():
     with application.app_context():
         return db.servers.find_one({"host":SERVER_HOST, "port": SERVER_PORT})
+
 
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
@@ -78,13 +92,10 @@ def file_upload():
 
     filename_encoded = headers['filename']
     directory_name_encoded = headers['directory']
-    #server_reference_encoded = headers['server_reference']
     ticket = headers['ticket']
     session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
     directory_name = Authentication.decode(session_key, directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
-    #server_reference = Authentication.decode(session_key, server_reference_encoded)
-
 
     m = hashlib.md5()
     m.update(directory_name)
@@ -98,7 +109,7 @@ def file_upload():
     if not db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]}):
         file = File.create(filename, directory['name'], directory['reference'], get_current_server()["reference"])
     else:
-        file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
+        file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
 
     with open(file["reference"], "wb") as fo:
         fo.write(data)
@@ -118,35 +129,47 @@ def file_download():
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
+    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
     if not directory:
         return jsonify({"success":False})
 
-    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
+    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
         return jsonify({"success":False})
 
     return flask.send_file(file["reference"])
 
+
 @application.route('/server/file/delete', methods=['POST'])
 def file_delete():
-    data = request.get_json(force=True)
-    ticket = data.get('auth_token')
-    filename = data.get('filename')
-    directory_name = data.get('directory')
+    headers = request.headers
+    filename_encoded = headers['filename']
+    directory_name_encoded = headers['directory']
+    ticket = headers['ticket']
+    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = Authentication.decode(session_key, directory_name_encoded)
+    filename = Authentication.decode(session_key, filename_encoded)
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
-    if not directory:
+    server = get_current_server()
+    print(server)
+    # check if the directory exists on current server
+    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
+        print("No directory found")
         return jsonify({"success": False})
-
-    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
+    # check if the file exists on current server
+    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
+        print("No file found")
         return jsonify({"success": False})
 
     os.remove(file["reference"])
-    return jsonify({"success":True})
+
+    if (get_current_server()["is_master"]):
+        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
+        thr.start()  # will run "foo"
+    return jsonify({'success':True})
 
 
 class Authentication:
@@ -186,6 +209,7 @@ class File:
         file = db.files.find_one({"reference":m.hexdigest()})
         return file
 
+
 class Directory:
     def __init__(self):
         pass
@@ -202,10 +226,6 @@ class Directory:
 if __name__ == '__main__':
     with application.app_context():
         m = hashlib.md5()
-        m.update("127.0.0.1" + ":" + "8092")
-        db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8092", "is_master": True, "in_use": False})
-        m.update("127.0.0.1" + ":" + "8093")
-        db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8093", "is_master": False, "in_use": False})
 
         servers = db.servers.find()
         for server in servers:
