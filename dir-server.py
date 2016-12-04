@@ -12,29 +12,44 @@ from flask import request
 from flask import jsonify
 from flask import Response
 from flask.ext.pymongo import PyMongo
+from pymongo import MongoClient
 from Crypto.Cipher import AES
 
 application = Flask(__name__)
 mongo = PyMongo(application)
 
+'''
+Set up global variables here
+'''
+mongo_server = "127.0.0.1"
+mongo_port = "27017"
+connect_string = "mongodb://" + mongo_server + ":" + mongo_port
+
+connection = MongoClient(connect_string)
+db = connection.project # equal to > use test_database
+servers = db.servers
+
 # constants
 AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
+SERVER_HOST = None
+SERVER_PORT = None
 
 def reset():
-    db = mongo.db.server
     db.directories.drop()
     db.files.drop()
 
 def upload_async(file, client_request):
     with application.app_context():
-        db = mongo.db.server
         servers = db.servers.find()
         for server in servers:
             host = server["host"]
             port = server["port"]
+            if (host == SERVER_HOST and port == SERVER_PORT):
+                continue
             # make POST request to upload file to server, using
             # same client request
             data = open(file['reference'], 'rb').read()
+            print(client_request)
 
             headers = {'ticket': client_request['ticket'],
                        'directory': client_request['directory'],
@@ -45,7 +60,6 @@ def upload_async(file, client_request):
 
 def delete_async(file):
     with application.app_context():
-        db = mongo.db.server
         servers = db.servers.find()
         for server in servers:
             host = server["host"]
@@ -53,39 +67,44 @@ def delete_async(file):
             # make POST request to delete file from server, using
             # same client request
 
+def get_current_server():
+    with application.app_context():
+        return db.servers.find_one({"host":SERVER_HOST, "port": SERVER_PORT})
+
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
     data = request.get_data()
     headers = request.headers
-    db = mongo.db.server
 
     filename_encoded = headers['filename']
     directory_name_encoded = headers['directory']
-    server_reference_encoded = headers['server_reference']
+    #server_reference_encoded = headers['server_reference']
     ticket = headers['ticket']
     session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
     directory_name = Authentication.decode(session_key, directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
-    server_reference = Authentication.decode(session_key, server_reference_encoded)
+    #server_reference = Authentication.decode(session_key, server_reference_encoded)
+
 
     m = hashlib.md5()
     m.update(directory_name)
-
-    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest()}):
-        directory = Directory.create(directory_name)
+    server = get_current_server()
+    print(server)
+    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]}):
+        directory = Directory.create(directory_name, server)
     else:
-        directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+        directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
 
-    if not db.files.find_one({"name": filename, "directory": directory['reference']}):
-        file = File.create(filename, directory['name'], directory['reference'], server_reference)
+    if not db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]}):
+        file = File.create(filename, directory['name'], directory['reference'], get_current_server()["reference"])
     else:
-        file = db.files.find_one({"name": filename, "directory": directory['reference']})
+        file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
 
     with open(file["reference"], "wb") as fo:
         fo.write(data)
-
-    thr = threading.Thread(target=upload_async, args=(file, {}), kwargs={})
-    thr.start()  # will run "foo"
+    if (get_current_server()["is_master"]):
+        thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
+        thr.start()  # will run "foo"
     return jsonify({'success':True})
 
 
@@ -99,11 +118,11 @@ def file_download():
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
     if not directory:
         return jsonify({"success":False})
 
-    file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
+    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
     if not file:
         return jsonify({"success":False})
 
@@ -118,16 +137,15 @@ def file_delete():
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = mongo.db.server.directories.find_one({"name": directory_name, "reference": m.hexdigest()})
+    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
     if not directory:
         return jsonify({"success": False})
 
-    file = mongo.db.server.files.find_one({"name": filename, "directory": directory['reference']})
+    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]})
     if not file:
         return jsonify({"success": False})
 
     os.remove(file["reference"])
-    pool.apply_async(delete_async, [file, {}], None)
     return jsonify({"success":True})
 
 
@@ -158,7 +176,6 @@ class File:
 
     @staticmethod
     def create(name, directory_name, directory_reference, server_reference):
-        db = mongo.db.server
         m = hashlib.md5()
         m.update(directory_reference + "/" + directory_name)
         db.files.insert({"name":name
@@ -174,14 +191,29 @@ class Directory:
         pass
 
     @staticmethod
-    def create(name):
-        db = mongo.db.server
+    def create(name, server):
         m = hashlib.md5()
         m.update(name)
-        db.directories.insert({"name":name, "reference": m.hexdigest()})
+        db.directories.insert({"name":name, "reference": m.hexdigest(), "server":server})
         directory = db.directories.find_one({"name":name, "reference": m.hexdigest()})
         return directory
 
 
 if __name__ == '__main__':
-    application.run(host='127.0.0.1',port=8093)
+    with application.app_context():
+        m = hashlib.md5()
+        m.update("127.0.0.1" + ":" + "8092")
+        db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8092", "is_master": True, "in_use": False})
+        m.update("127.0.0.1" + ":" + "8093")
+        db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8093", "is_master": False, "in_use": False})
+
+        servers = db.servers.find()
+        for server in servers:
+            print(server)
+            if (server['in_use'] == False):
+                server['in_use'] = True
+                SERVER_PORT = server['port']
+                SERVER_HOST = server['host']
+
+                db.servers.update({'reference': server['reference']}, server, upsert=True)
+                application.run(host=server['host'],port=server['port'])
