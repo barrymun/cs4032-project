@@ -2,6 +2,8 @@ import requests
 import base64
 import json
 import hashlib
+import time
+
 from Crypto.Cipher import AES
 from pymongo import MongoClient
 
@@ -42,6 +44,7 @@ data = open('yourfile.txt', 'rb').read()
 
 headers = {'ticket':ticket, 'directory':encrypted_directory, 'filename':encrypted_filename}
 r = requests.post("http://" + server_host + ":" + server_port + "/server/file/upload", data=data, headers=headers)
+time.sleep(5)
 r2 = requests.post("http://" + server_host + ":" + server_port + "/server/file/delete", headers=headers)
 print(r.text)
 print(r2.text)

@@ -61,7 +61,7 @@ def upload_async(file, client_request):
             r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data, headers=headers)
 
 
-def delete_async(file, client_request):
+def delete_async(client_request):
     with application.app_context():
         servers = db.servers.find()
         for server in servers:
@@ -71,13 +71,12 @@ def delete_async(file, client_request):
                 continue
             # make POST request to delete file from server, using
             # same client request
-            data = open(file['reference'], 'rb').read()
             print(client_request)
 
             headers = {'ticket': client_request['ticket'],
                        'directory': client_request['directory'],
                        'filename': client_request['filename']}
-            r = requests.post("http://" + host + ":" + port + "/server/file/delete", data=data, headers=headers)
+            r = requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
 
 
 def get_current_server():
@@ -148,6 +147,8 @@ def file_delete():
     ticket = headers['ticket']
     session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
     directory_name = Authentication.decode(session_key, directory_name_encoded)
+    print(directory_name)
+    print(directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
 
     m = hashlib.md5()
@@ -155,19 +156,18 @@ def file_delete():
     server = get_current_server()
     print(server)
     # check if the directory exists on current server
-    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
+    if not db.directories.find_one({"name": directory_name, "server": get_current_server()["reference"]}):
         print("No directory found")
         return jsonify({"success": False})
     # check if the file exists on current server
-    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
-    if not file:
+    if not db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]}):
         print("No file found")
         return jsonify({"success": False})
 
     os.remove(file["reference"])
 
     if (get_current_server()["is_master"]):
-        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
+        thr = threading.Thread(target=delete_async, args=(headers), kwargs={})
         thr.start()  # will run "foo"
     return jsonify({'success':True})
 
