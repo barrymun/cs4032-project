@@ -1,28 +1,49 @@
-
 import requests
 import base64
 import json
+import time
 import hashlib
 from Crypto.Cipher import AES
 from pymongo import MongoClient
 
-'''
-Set up global variables here
-'''
-mongo_server = "127.0.0.1"
-mongo_port = "27017"
-connect_string = "mongodb://" + mongo_server + ":" + mongo_port
+PUBLIC_KEY = "0123456789abcdef0123456789abcdef"
+client_id = "1"
+decrypted_password = "0dP1jO2zS7111111"
 
-connection = MongoClient(connect_string)
-db = connection.project # equal to > use test_database
-servers = db.servers
+def pad(s):
+    return s + b" " * (AES.block_size - len(s) % AES.block_size)
 
-db.servers.drop()
-db.directories.drop()
-db.files.drop()
+# ESTABLISHING CONNECTION WITH AUTHENTICATION SERVER
+cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # never use ECB in strong systems obviously
+encrypted_password = base64.b64encode(cipher.encrypt(decrypted_password))
 
-m = hashlib.md5()
-m.update("127.0.0.1" + ":" + "8092")
-db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8092", "is_master": True, "in_use": False})
-m.update("127.0.0.1" + ":" + "8093")
-db.servers.insert({"reference": m.hexdigest(), "host": "127.0.0.1", "port": "8093", "is_master": False, "in_use": False})
+headers = {'Content-type': 'application/json'}
+payload = {'client_id': client_id, 'encrypted_password': encrypted_password}
+r = requests.post("http://127.0.0.1:5000/client/auth", data=json.dumps(payload), headers=headers)
+response_body = r.text
+encoded_token = json.loads(response_body)["token"]
+
+cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # never use ECB in strong systems obviously
+decoded = cipher.decrypt(base64.b64decode(encoded_token))
+decoded_data = json.loads(decoded.strip())
+
+session_key = decoded_data["session_key"]
+print("SESSION KEY DECODED")
+print(session_key)
+ticket = decoded_data["ticket"]
+server_host = decoded_data["server_host"]
+server_port = decoded_data["server_port"]
+
+# UPLOADING FILE TO FILE SERVER, USING AUTHENTICATED DATA
+cipher = AES.new(session_key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+encrypted_directory = base64.b64encode(cipher.encrypt(pad("/home/great")))
+encrypted_filename = base64.b64encode(cipher.encrypt(pad("sample.txt")))
+
+data = open('yourfile.txt', 'rb').read()
+
+headers = {'ticket':ticket, 'directory':encrypted_directory, 'filename':encrypted_filename}
+r = requests.post("http://" + server_host + ":" + server_port + "/server/file/upload", data=data, headers=headers)
+time.sleep(10)
+r2 = requests.post("http://" + server_host + ":" + server_port + "/server/file/delete", headers=headers)
+print(r.text)
+print(r2.text)
