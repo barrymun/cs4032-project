@@ -9,6 +9,8 @@ import threading
 import requests
 import redis
 import zlib
+import uuid
+import Queue
 
 from flask import Flask
 from flask import request
@@ -20,7 +22,8 @@ from Crypto.Cipher import AES
 
 application = Flask(__name__)
 mongo = PyMongo(application)
-
+write_lock = threading.Lock()
+write_queue = Queue.Queue(maxsize=100)
 '''
 Set up global variables here
 '''
@@ -30,7 +33,7 @@ mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
 
 connection = MongoClient(connect_string)
-db = connection.project # equal to > use test_database
+db = connection.project  # equal to > use test_database
 servers = db.servers
 
 # constants
@@ -83,13 +86,16 @@ def delete_async(file, client_request):
 
 def get_current_server():
     with application.app_context():
-        return db.servers.find_one({"host":SERVER_HOST, "port": SERVER_PORT})
+        return db.servers.find_one({"host": SERVER_HOST, "port": SERVER_PORT})
 
 
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
     # Need to update cached record (if exists)
-    data = Cache.compress(request.get_data())
+    pre_write_cache_reference = uuid.uuid4()
+    print(Cache.compress(request.get_data()))
+    cache.create(pre_write_cache_reference, Cache.compress(request.get_data()))
+    print cache.get(pre_write_cache_reference)
 
     headers = request.headers
 
@@ -103,24 +109,28 @@ def file_upload():
     m = hashlib.md5()
     m.update(directory_name)
     server = get_current_server()
-    print(server)
-    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]}):
+
+    if not db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
         directory = Directory.create(directory_name, server["reference"])
     else:
-        directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server":get_current_server()["reference"]})
+        directory = db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
 
-    if not db.files.find_one({"name": filename, "directory": directory['reference'], "server":get_current_server()["reference"]}):
+    if not db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]}):
         file = File.create(filename, directory['name'], directory['reference'], get_current_server()["reference"])
     else:
-        file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
+        file = db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
 
-    cache.create(directory['reference'] + "_" + file['reference'], data)
-    with open(file["reference"], "wb") as fo:
-        fo.write(data)
+    transaction = Transaction(write_lock, file['reference'], directory['reference'], pre_write_cache_reference)
+    transaction.start()
+
     if (get_current_server()["is_master"]):
         thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
-    return jsonify({'success':True})
+    return jsonify({'success': True})
 
 
 @application.route('/server/file/download', methods=['POST'])
@@ -133,13 +143,15 @@ def file_download():
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+    directory = db.directories.find_one(
+        {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
     if not directory:
-        return jsonify({"success":False})
+        return jsonify({"success": False})
 
-    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
+    file = db.files.find_one(
+        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
-        return jsonify({"success":False})
+        return jsonify({"success": False})
 
     cache_file_reference = directory['reference'] + "_" + file['reference']
     if cache.exists(cache_file_reference):
@@ -158,30 +170,84 @@ def file_delete():
     directory_name = Authentication.decode(session_key, directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
 
-
-    # Also, need to invalidate Cached record (if exists)
     m = hashlib.md5()
     m.update(directory_name)
     server = get_current_server()
     print(server)
     # check if the directory exists on current server
-    if not db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
+    if not db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
         print("No directory found")
         return jsonify({"success": False})
     else:
-        directory = db.directories.find_one({"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+        directory = db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
     # check if the file exists on current server
-    file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
+    file = db.files.find_one(
+        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
         print("No file found")
         return jsonify({"success": False})
 
-    os.remove(file["reference"])
+    delete_transaction = DeleteTransaction(file["reference"], directory["reference"])
+    delete_transaction.start()
 
     if (get_current_server()["is_master"]):
         thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
-    return jsonify({'success':True})
+    return jsonify({'success': True})
+
+
+class Transaction(threading.Thread):
+    def __init__(self, lock, file_reference, directory_reference, cache_reference):
+        threading.Thread.__init__(self)
+        self.lock = lock
+        self.file_reference = file_reference
+        self.cache_reference = cache_reference
+        self.directory_reference = directory_reference
+
+    def run(self):
+        self.lock.acquire()
+        reference = db.writes.find_one({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
+        if (reference):
+            # then, queue the write
+            write_queue.put({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
+            self.lock.release()
+            return
+        self.lock.release()
+        # now, write to the file on disk and Redis cache
+        cache.create(self.directory_reference + "_" + self.file_reference, cache.get(self.cache_reference))
+        cache.delete(self.cache_reference)
+        with open(self.file_reference, "wb") as fo:
+            fo.write(cache.get(self.directory_reference + "_" + self.file_reference))
+
+
+class DeleteTransaction(threading.Thread):
+    def __init__(self, lock, file_reference, directory_reference):
+        threading.Thread.__init__(self)
+        self.lock = lock
+        self.file_reference = file_reference
+        self.directory_reference = directory_reference
+
+    def run(self):
+        self.lock.acquire()
+        if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
+                              "server": get_current_server()["reference"]}):
+            cache.delete(self.file_reference + "_" + self.directory_reference)
+            os.remove(self.file_reference)
+        self.lock.release
+
+
+class QueuedWriteHandler(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            file_write = write_queue.get()
+            thread = Transaction(file_write["file_reference"], file_write["cache_reference"])
+            thread.start()
+            write_queue.task_done()
 
 
 class Authentication:
@@ -205,8 +271,6 @@ class Authentication:
         return decoded.strip()
 
 
-
-
 class Cache:
     def __init__(self, host='127.0.0.1', port=6379, db=0):
         self.host = host
@@ -223,10 +287,13 @@ class Cache:
         return self.server
 
     def get(self, key):
-        self.server.get(key)
+        return self.server.get(key)
 
     def create(self, key, data):
         self.server.set(key, data)
+
+    def delete(self, key):
+        self.server.delete(key)
 
     def exists(self, key):
         return self.server.exists(key)
@@ -239,6 +306,7 @@ class Cache:
     def decompress(data):
         return zlib.decompress(data)
 
+
 class File:
     def __init__(self):
         pass
@@ -247,12 +315,12 @@ class File:
     def create(name, directory_name, directory_reference, server_reference):
         m = hashlib.md5()
         m.update(directory_reference + "/" + directory_name)
-        db.files.insert({"name":name
-            ,"directory": directory_reference
-            ,"server": server_reference
-            ,"reference": m.hexdigest()
-            ,"updated_at": datetime.datetime.utcnow()})
-        file = db.files.find_one({"reference":m.hexdigest()})
+        db.files.insert({"name": name
+                            , "directory": directory_reference
+                            , "server": server_reference
+                            , "reference": m.hexdigest()
+                            , "updated_at": datetime.datetime.utcnow()})
+        file = db.files.find_one({"reference": m.hexdigest()})
         return file
 
 
@@ -264,9 +332,10 @@ class Directory:
     def create(name, server):
         m = hashlib.md5()
         m.update(name)
-        db.directories.insert({"name":name, "reference": m.hexdigest(), "server":server})
-        directory = db.directories.find_one({"name":name, "reference": m.hexdigest()})
+        db.directories.insert({"name": name, "reference": m.hexdigest(), "server": server})
+        directory = db.directories.find_one({"name": name, "reference": m.hexdigest()})
         return directory
+
 
 cache = Cache()
 cache.create_instance()
@@ -282,6 +351,8 @@ if __name__ == '__main__':
                 server['in_use'] = True
                 SERVER_PORT = server['port']
                 SERVER_HOST = server['host']
-
+                queued_write_handler = QueuedWriteHandler()
+                queued_write_handler.setDaemon(True)
+                queued_write_handler.start()
                 db.servers.update({'reference': server['reference']}, server, upsert=True)
-                application.run(host=server['host'],port=server['port'])
+                application.run(host=server['host'], port=server['port'])
