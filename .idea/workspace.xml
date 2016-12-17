@@ -2,7 +2,564 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821c137a-57b8-4226-8d78-01616de533a0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client.py" afterPath="$PROJECT_DIR$/client.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/config.stamp.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/cover.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/logo.gif" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/lua.ico" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/life.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/assets/encodings.rdb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/assets/hash-zipmap.rdb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Dockerfile.save" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/00-RELEASENOTES" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/BUGS" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/CONTRIBUTING" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/COPYING" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/INSTALL" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/MANIFESTO" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/geohash-int/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/geohash-int/geohash.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/geohash-int/geohash.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/geohash-int/geohash_helper.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/geohash-int/geohash_helper.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/.travis.yml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/CHANGELOG.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/COPYING" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/adapters/ae.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/adapters/libev.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/adapters/libevent.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/adapters/libuv.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/async.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/async.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/dict.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/dict.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/examples/example-ae.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/examples/example-libev.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/examples/example-libevent.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/examples/example-libuv.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/examples/example.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/fmacros.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/hiredis.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/hiredis.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/net.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/net.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/sds.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/sds.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/sdsalloc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/test.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/hiredis/zmalloc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/.autom4te.cfg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/.gitattributes" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/COPYING" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/ChangeLog" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/INSTALL" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/Makefile.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/autogen.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/bin/jemalloc-config.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/bin/jemalloc.sh.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/bin/jeprof.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/config.guess" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/config.sub" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/configure.ac" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/coverage.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/doc/html.xsl.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/doc/jemalloc.xml.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/doc/manpages.xsl.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/doc/stylesheet.xsl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/arena.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/atomic.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/base.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/bitmap.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/chunk.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/chunk_dss.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/chunk_mmap.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/ckh.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/ctl.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/extent.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/hash.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/huge.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/jemalloc_internal.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/jemalloc_internal_decls.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/jemalloc_internal_defs.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/jemalloc_internal_macros.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/mb.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/mutex.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/pages.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/private_namespace.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/private_symbols.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/private_unnamespace.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/prng.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/prof.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/public_namespace.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/public_unnamespace.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/ql.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/qr.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/quarantine.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/rb.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/rtree.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/size_classes.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/stats.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/tcache.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/tsd.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/util.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/internal/valgrind.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_defs.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_macros.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_mangle.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_protos.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_rename.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/jemalloc/jemalloc_typedefs.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/msvc_compat/C99/stdbool.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/msvc_compat/C99/stdint.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/msvc_compat/strings.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/include/msvc_compat/windows_extra.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/install-sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/jemalloc.pc.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/arena.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/atomic.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/base.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/bitmap.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/chunk.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/chunk_dss.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/chunk_mmap.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/ckh.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/ctl.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/extent.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/hash.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/huge.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/jemalloc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/mb.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/mutex.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/pages.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/prof.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/quarantine.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/rtree.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/stats.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/tcache.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/tsd.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/util.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/valgrind.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/src/zone.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-alti.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params11213.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params1279.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params132049.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params19937.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params216091.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params2281.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params4253.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params44497.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params607.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-params86243.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT-sse2.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/SFMT.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/btalloc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/jemalloc_test.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/jemalloc_test_defs.h.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/math.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/mq.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/mtx.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/test.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/thd.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/include/test/timer.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/MALLOCX_ARENA.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/aligned_alloc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/allocated.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/chunk.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/mallocx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/overflow.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/posix_memalign.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/rallocx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/sdallocx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/thread_arena.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/thread_tcache_enabled.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/integration/xallocx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/SFMT.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/btalloc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/btalloc_0.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/btalloc_1.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/math.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/mq.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/mtx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/test.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/thd.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/src/timer.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/stress/microbench.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/test.sh.in" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/SFMT.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/atomic.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/bitmap.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/ckh.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/hash.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/junk.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/junk_alloc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/junk_free.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/lg_chunk.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/mallctl.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/math.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/mq.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/mtx.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_accum.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_active.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_gdump.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_idump.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_reset.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/prof_thread_name.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/ql.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/qr.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/quarantine.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/rb.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/rtree.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/size_classes.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/stats.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/tsd.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/util.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/jemalloc/test/unit/zero.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/README.markdown" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/example.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/linenoise.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/linenoise/linenoise.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/COPYRIGHT" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/HISTORY" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/INSTALL" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/contents.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/lua.1" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/lua.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/lua.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/luac.1" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/luac.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/manual.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/manual.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/doc/readme.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/all.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/lua.hpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/lua.pc" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/luavs.bat" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/min.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/noparser.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/etc/strict.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/fpconv.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/fpconv.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lapi.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lapi.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lauxlib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lauxlib.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lbaselib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lcode.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lcode.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldblib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldebug.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldebug.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldo.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldo.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ldump.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lfunc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lfunc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lgc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lgc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/linit.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/liolib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/llex.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/llex.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/llimits.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lmathlib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lmem.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lmem.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/loadlib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lobject.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lobject.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lopcodes.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lopcodes.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/loslib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lparser.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lparser.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lstate.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lstate.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lstring.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lstring.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lstrlib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ltable.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ltable.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ltablib.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ltm.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/ltm.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua_bit.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua_cjson.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua_cmsgpack.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lua_struct.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/luac.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/luaconf.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lualib.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lundump.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lundump.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lvm.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lvm.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lzio.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/lzio.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/print.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/strbuf.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/src/strbuf.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/bisect.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/cf.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/echo.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/env.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/factorial.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/fib.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/fibfor.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/globals.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/hello.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/luac.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/printf.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/readonly.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/sieve.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/sort.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/table.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/trace-calls.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/trace-globals.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/lua/test/xd.lua" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/deps/update-jemalloc.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/redis.conf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/runtest" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/runtest-cluster" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/runtest-sentinel" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/sentinel.conf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/Makefile.dep" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/adlist.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/adlist.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae_epoll.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae_evport.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae_kqueue.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ae_select.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/anet.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/anet.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/aof.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/asciilogo.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/bio.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/bio.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/bitops.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/blocked.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/cluster.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/cluster.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/config.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/config.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/crc16.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/crc64.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/crc64.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/db.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/debug.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/debugmacro.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/dict.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/dict.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/endianconv.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/endianconv.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/fmacros.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/geo.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/geo.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/help.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/hyperloglog.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/intset.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/intset.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/latency.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/latency.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/lzf.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/lzfP.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/lzf_c.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/lzf_d.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/memtest.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/mkreleasehdr.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/multi.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/networking.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/notify.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/object.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/pqsort.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/pqsort.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/pubsub.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/quicklist.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/quicklist.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rand.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rand.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rdb.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rdb.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redis-benchmark.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redis-check-aof.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redis-check-rdb.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redis-cli.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redis-trib.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/redisassert.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/release.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/replication.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rio.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/rio.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/scripting.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sds.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sds.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sdsalloc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sentinel.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/server.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/server.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/setproctitle.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sha1.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sha1.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/slowlog.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/slowlog.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/solarisfixes.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sort.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sparkline.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/sparkline.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/syncio.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/t_hash.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/t_list.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/t_set.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/t_string.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/t_zset.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/testhelp.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/util.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/util.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/valgrind.sup" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/version.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ziplist.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/ziplist.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/zipmap.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/zipmap.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/zmalloc.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/src/zmalloc.h" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/assets/default.conf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/cluster.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/run.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/00-base.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/01-faildet.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/02-failover.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/03-failover-loop.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/04-resharding.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/05-slave-selection.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/06-slave-stop-cond.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/07-replica-migration.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/08-update-msg.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/09-pubsub.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/10-manual-failover.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/11-manual-takeover.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/12-replica-migration-2.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/helpers/onlydots.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tests/includes/init-tests.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/cluster/tmp/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/helpers/bg_complex_data.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/helpers/gen_write_load.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/instances.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/aof-race.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/aof.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/convert-zipmap-hash-on-load.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/logging.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/rdb.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/redis-cli.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/replication-2.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/replication-3.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/replication-4.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/replication-psync.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/integration/replication.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/run.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/00-base.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/01-conf-update.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/02-slaves-reconf.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/03-runtime-reconf.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/04-slave-selection.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/05-manual.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/06-ckquorum.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/07-down-conditions.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tests/includes/init-tests.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/sentinel/tmp/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/cluster.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/redis.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/server.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/test.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/tmpfile.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/support/util.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/test_helper.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/aofrw.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/auth.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/bitfield.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/bitops.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/dump.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/expire.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/geo.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/hyperloglog.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/introspection-2.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/introspection.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/keyspace.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/latency-monitor.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/limits.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/maxmemory.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/memefficiency.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/multi.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/obuf-limits.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/other.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/printver.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/protocol.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/pubsub.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/quit.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/scan.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/scripting.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/slowlog.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/sort.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/hash.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/incr.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/list-2.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/list-3.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/list-common.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/list.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/set.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/string.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/tests/unit/type/zset.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/build-static-symbols.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/cluster_fail_time.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/corrupt_rdb.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/create-cluster/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/create-cluster/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/create-cluster/create-cluster" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/generate-command-help.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/hashtable/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/hashtable/rehashing.c" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/hyperloglog/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/hyperloglog/hll-err.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/hyperloglog/hll-gnuplot-graph.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/install_server.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/lru/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/lru/test-lru.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/redis-copy.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/redis-sha1.rb" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/redis_init_script" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/redis_init_script.tpl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/releasetools/01_create_tarball.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/releasetools/02_upload_tarball.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/releasetools/03_test_release.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/releasetools/04_release_hash.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/speed-regression.tcl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/redis-stable/utils/whatisdoing.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dir-server.py" afterPath="$PROJECT_DIR$/dir-server.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,7 +578,7 @@
         <entry file="file://$PROJECT_DIR$/auth-server.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="195">
-              <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+              <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -31,17 +588,17 @@
         <entry file="file://$PROJECT_DIR$/Dockerfile">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="30">
-              <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dir-server.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="dir-server.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dir-server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="861">
-              <caret line="239" column="72" lean-forward="false" selection-start-line="239" selection-start-column="72" selection-end-line="239" selection-end-column="72" />
+            <state relative-caret-position="2940">
+              <caret line="286" column="72" lean-forward="false" selection-start-line="286" selection-start-column="72" selection-end-line="286" selection-end-column="72" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -59,10 +616,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="client.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="client.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="720">
+            <state relative-caret-position="611">
               <caret line="48" column="14" lean-forward="false" selection-start-line="48" selection-start-column="14" selection-end-line="48" selection-end-column="14" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
@@ -112,11 +669,11 @@
         <option value="$USER_HOME$/dir-server/dir-server.py" />
         <option value="$USER_HOME$/dir-server/yourfile.txt" />
         <option value="$PROJECT_DIR$/client-delete.py" />
-        <option value="$PROJECT_DIR$/dir-server.py" />
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/Dockerfile" />
         <option value="$PROJECT_DIR$/auth-server.py" />
         <option value="$PROJECT_DIR$/client.py" />
+        <option value="$PROJECT_DIR$/dir-server.py" />
       </list>
     </option>
   </component>
@@ -128,7 +685,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="65" />
-    <option name="y" value="24" />
+    <option name="y" value="792" />
     <option name="width" value="1301" />
     <option name="height" value="744" />
   </component>
@@ -147,6 +704,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -175,8 +734,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -435,7 +992,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1301" height="744" extended-state="6" />
+    <frame x="65" y="792" width="1301" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19369715" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -471,6 +1028,60 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/auth-server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dir-server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3585">
+          <caret line="239" column="72" lean-forward="false" selection-start-line="239" selection-start-column="72" selection-end-line="239" selection-end-column="72" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="26" column="121" lean-forward="false" selection-start-line="26" selection-start-column="121" selection-end-line="26" selection-end-column="121" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/auth-server.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -596,20 +1207,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dir-server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="861">
-          <caret line="239" column="72" lean-forward="false" selection-start-line="239" selection-start-column="72" selection-end-line="239" selection-end-column="72" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Dockerfile">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -617,17 +1218,27 @@
     <entry file="file://$PROJECT_DIR$/auth-server.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
-          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
+        <state relative-caret-position="611">
           <caret line="48" column="14" lean-forward="false" selection-start-line="48" selection-start-column="14" selection-end-line="48" selection-end-column="14" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dir-server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2940">
+          <caret line="286" column="72" lean-forward="false" selection-start-line="286" selection-start-column="72" selection-end-line="286" selection-end-column="72" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>

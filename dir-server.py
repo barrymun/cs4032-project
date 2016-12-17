@@ -7,6 +7,8 @@ import flask
 import os
 import threading
 import requests
+import redis
+import zlib
 
 from flask import Flask
 from flask import request
@@ -86,7 +88,9 @@ def get_current_server():
 
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
-    data = request.get_data()
+    # Need to update cached record (if exists)
+    data = Cache.compress(request.get_data())
+
     headers = request.headers
 
     filename_encoded = headers['filename']
@@ -110,6 +114,7 @@ def file_upload():
     else:
         file = db.files.find_one({"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
 
+    cache.create(directory['reference'] + "_" + file['reference'], data)
     with open(file["reference"], "wb") as fo:
         fo.write(data)
     if (get_current_server()["is_master"]):
@@ -136,7 +141,11 @@ def file_download():
     if not file:
         return jsonify({"success":False})
 
-    return flask.send_file(file["reference"])
+    cache_file_reference = directory['reference'] + "_" + file['reference']
+    if cache.exists(cache_file_reference):
+        return Cache.decompress(cache.get(cache_file_reference))
+    else:
+        return flask.send_file(file["reference"])
 
 
 @application.route('/server/file/delete', methods=['POST'])
@@ -149,6 +158,8 @@ def file_delete():
     directory_name = Authentication.decode(session_key, directory_name_encoded)
     filename = Authentication.decode(session_key, filename_encoded)
 
+
+    # Also, need to invalidate Cached record (if exists)
     m = hashlib.md5()
     m.update(directory_name)
     server = get_current_server()
@@ -194,6 +205,40 @@ class Authentication:
         return decoded.strip()
 
 
+
+
+class Cache:
+    def __init__(self, host='127.0.0.1', port=6379, db=0):
+        self.host = host
+        self.port = port
+        self.db = db
+        self.pool = None
+        self.server = None
+
+    def create_instance(self):
+        self.pool = redis.ConnectionPool(host=self.host, port=self.port, db=self.db)
+        self.server = redis.Redis(connection_pool=self.pool)
+
+    def get_instance(self):
+        return self.server
+
+    def get(self, key):
+        self.server.get(key)
+
+    def create(self, key, data):
+        self.server.set(key, data)
+
+    def exists(self, key):
+        return self.server.exists(key)
+
+    @staticmethod
+    def compress(data):
+        return zlib.compress(data)
+
+    @staticmethod
+    def decompress(data):
+        return zlib.decompress(data)
+
 class File:
     def __init__(self):
         pass
@@ -223,6 +268,8 @@ class Directory:
         directory = db.directories.find_one({"name":name, "reference": m.hexdigest()})
         return directory
 
+cache = Cache()
+cache.create_instance()
 
 if __name__ == '__main__':
     with application.app_context():
