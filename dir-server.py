@@ -1,24 +1,21 @@
+import Queue
 import base64
-import md5
 import datetime
-import json
 import hashlib
-import flask
 import os
 import threading
-import requests
-import redis
-import zlib
 import uuid
-import Queue
+import zlib
 
+import flask
+import redis
+import requests
+from Crypto.Cipher import AES
 from flask import Flask
-from flask import request
 from flask import jsonify
-from flask import Response
+from flask import request
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
-from Crypto.Cipher import AES
 
 application = Flask(__name__)
 mongo = PyMongo(application)
@@ -221,8 +218,6 @@ def file_rollback():
     return jsonify({'success': True})
 
 
-
-
 @application.route('/server/file/delete', methods=['POST'])
 def file_delete():
     headers = request.headers
@@ -259,6 +254,7 @@ def file_delete():
         thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
     return jsonify({'success': True})
+
 
 class Transaction(threading.Thread):
     def __init__(self, lock, file_reference, directory_reference, cache_reference):
@@ -312,10 +308,11 @@ class RollbackTransaction(threading.Thread):
         count = 0
         server_count = get_total_servers()
         for file in db.files.find({}):
-            if file.find_one({"reference": self.file_reference, "directory": self.directory_reference, "server": get_current_server()["reference"]}):
+            if file.find_one({"reference": self.file_reference, "directory": self.directory_reference,
+                              "server": get_current_server()["reference"]}):
                 count += 1
 
-        if count > 0 and count/server_count <= 0.5:
+        if count > 0 and count / server_count <= 0.5:
             delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
             delete_transaction.start()
 

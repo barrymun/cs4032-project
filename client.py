@@ -1,18 +1,19 @@
-import requests
 import base64
 import json
 import time
-import hashlib
+
+import requests
 from Crypto.Cipher import AES
-from pymongo import MongoClient
 
 PUBLIC_KEY = "0123456789abcdef0123456789abcdef"
 client_id = "1"
 decrypted_password = "0dP1jO2zS7111111"
 r = requests.get("http://127.0.0.1:5000/client/auth")
 
+
 def pad(s):
     return s + b" " * (AES.block_size - len(s) % AES.block_size)
+
 
 # ESTABLISHING CONNECTION WITH AUTHENTICATION SERVER
 cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # never use ECB in strong systems obviously
@@ -42,7 +43,7 @@ encrypted_filename = base64.b64encode(cipher.encrypt(pad("sample.txt")))
 
 data = open('yourfile.txt', 'rb').read()
 
-headers = {'ticket':ticket, 'directory':encrypted_directory, 'filename':encrypted_filename}
+headers = {'ticket': ticket, 'directory': encrypted_directory, 'filename': encrypted_filename}
 r = requests.post("http://" + server_host + ":" + server_port + "/server/file/upload", data=data, headers=headers)
 time.sleep(3)
 print r.text
