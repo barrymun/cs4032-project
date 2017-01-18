@@ -66,7 +66,7 @@ def upload_async(file, client_request):
             r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data, headers=headers)
 
 
-def delete_async(file, client_request):
+def delete_async(client_request):
     with application.app_context():
         servers = db.servers.find()
         for server in servers:
@@ -84,9 +84,32 @@ def delete_async(file, client_request):
             r = requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
 
 
+def rollback_async(client_request):
+    with application.app_context():
+        servers = db.servers.find()
+        for server in servers:
+            host = server["host"]
+            port = server["port"]
+            if (host == SERVER_HOST and port == SERVER_PORT):
+                continue
+            # make POST request to delete file from server, using
+            # same client request
+            print(client_request)
+
+            headers = {'ticket': client_request['ticket'],
+                       'directory': client_request['directory'],
+                       'filename': client_request['filename']}
+            r = requests.post("http://" + host + ":" + port + "/server/file/rollback", data='', headers=headers)
+
+
 def get_current_server():
     with application.app_context():
         return db.servers.find_one({"host": SERVER_HOST, "port": SERVER_PORT})
+
+
+def get_total_servers():
+    with application.app_context():
+        return count(db.servers.find({}))
 
 
 @application.route('/server/file/upload', methods=['POST'])
@@ -160,6 +183,46 @@ def file_download():
         return flask.send_file(file["reference"])
 
 
+@application.route('/server/file/rollback', methods=['POST'])
+def file_rollback():
+    headers = request.headers
+    filename_encoded = headers['filename']
+    directory_name_encoded = headers['directory']
+    ticket = headers['ticket']
+    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = Authentication.decode(session_key, directory_name_encoded)
+    filename = Authentication.decode(session_key, filename_encoded)
+
+    m = hashlib.md5()
+    m.update(directory_name)
+    server = get_current_server()
+    print(server)
+    # check if the directory exists on current server
+    if not db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
+        print("No directory found")
+        return jsonify({"success": False})
+    else:
+        directory = db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+    # check if the file exists on current server
+    file = db.files.find_one(
+        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
+    if not file:
+        print("No file found")
+        return jsonify({"success": False})
+
+    rollback_transaction = RollbackTransaction(write_lock, file["reference"], directory["reference"])
+    rollback_transaction.start()
+
+    if (get_current_server()["is_master"]):
+        thr = threading.Thread(target=rollback_async, args=(file, headers), kwargs={})
+        thr.start()  # will run "foo"
+    return jsonify({'success': True})
+
+
+
+
 @application.route('/server/file/delete', methods=['POST'])
 def file_delete():
     headers = request.headers
@@ -189,14 +252,13 @@ def file_delete():
         print("No file found")
         return jsonify({"success": False})
 
-    delete_transaction = DeleteTransaction(file["reference"], directory["reference"])
+    delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
     delete_transaction.start()
 
     if (get_current_server()["is_master"]):
         thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
     return jsonify({'success': True})
-
 
 class Transaction(threading.Thread):
     def __init__(self, lock, file_reference, directory_reference, cache_reference):
@@ -235,7 +297,29 @@ class DeleteTransaction(threading.Thread):
                               "server": get_current_server()["reference"]}):
             cache.delete(self.file_reference + "_" + self.directory_reference)
             os.remove(self.file_reference)
-        self.lock.release
+        self.lock.release()
+
+
+class RollbackTransaction(threading.Thread):
+    def __init__(self, lock, file_reference, directory_reference):
+        threading.Thread.__init__(self)
+        self.lock = lock
+        self.file_reference = file_reference
+        self.directory_reference = directory_reference
+
+    def run(self):
+        self.lock.acquire()
+        count = 0
+        server_count = get_total_servers()
+        for file in db.files.find({}):
+            if file.find_one({"reference": self.file_reference, "directory": self.directory_reference, "server": get_current_server()["reference"]}):
+                count += 1
+
+        if count > 0 and count/server_count <= 0.5:
+            delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
+            delete_transaction.start()
+
+        self.lock.release()
 
 
 class QueuedWriteHandler(threading.Thread):

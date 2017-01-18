@@ -9,6 +9,7 @@ from pymongo import MongoClient
 PUBLIC_KEY = "0123456789abcdef0123456789abcdef"
 client_id = "1"
 decrypted_password = "0dP1jO2zS7111111"
+r = requests.get("http://127.0.0.1:5000/client/auth")
 
 def pad(s):
     return s + b" " * (AES.block_size - len(s) % AES.block_size)
@@ -43,7 +44,14 @@ data = open('yourfile.txt', 'rb').read()
 
 headers = {'ticket':ticket, 'directory':encrypted_directory, 'filename':encrypted_filename}
 r = requests.post("http://" + server_host + ":" + server_port + "/server/file/upload", data=data, headers=headers)
-time.sleep(10)
+time.sleep(3)
+print r.text
+
 r2 = requests.post("http://" + server_host + ":" + server_port + "/server/file/delete", headers=headers)
-print(r.text)
-print(r2.text)
+time.sleep(3)
+print r2.text
+
+url = "http://" + server_host + ":" + server_port + "/server/file/rollback";
+print url
+r3 = requests.post(url, headers=headers)
+print r3.text
