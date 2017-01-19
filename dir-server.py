@@ -16,6 +16,7 @@ from flask import jsonify
 from flask import request
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
+from transactions import ServerTransactions
 
 application = Flask(__name__)
 mongo = PyMongo(application)
@@ -32,6 +33,7 @@ connect_string = "mongodb://" + mongo_server + ":" + mongo_port
 connection = MongoClient(connect_string)
 db = connection.project  # equal to > use test_database
 servers = db.servers
+server_transactions = ServerTransactions()
 
 # constants
 AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
@@ -45,58 +47,15 @@ def reset():
 
 
 def upload_async(file, client_request):
-    with application.app_context():
-        servers = db.servers.find()
-        for server in servers:
-            host = server["host"]
-            port = server["port"]
-            if (host == SERVER_HOST and port == SERVER_PORT):
-                continue
-            # make POST request to upload file to server, using
-            # same client request
-            data = open(file['reference'], 'rb').read()
-            print(client_request)
-
-            headers = {'ticket': client_request['ticket'],
-                       'directory': client_request['directory'],
-                       'filename': client_request['filename']}
-            r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data, headers=headers)
+    server_transactions.upload_async_trans(file, client_request)
 
 
 def delete_async(client_request):
-    with application.app_context():
-        servers = db.servers.find()
-        for server in servers:
-            host = server["host"]
-            port = server["port"]
-            if (host == SERVER_HOST and port == SERVER_PORT):
-                continue
-            # make POST request to delete file from server, using
-            # same client request
-            print(client_request)
-
-            headers = {'ticket': client_request['ticket'],
-                       'directory': client_request['directory'],
-                       'filename': client_request['filename']}
-            r = requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+    server_transactions.delete_async_transaction(client_request)
 
 
 def rollback_async(client_request):
-    with application.app_context():
-        servers = db.servers.find()
-        for server in servers:
-            host = server["host"]
-            port = server["port"]
-            if (host == SERVER_HOST and port == SERVER_PORT):
-                continue
-            # make POST request to delete file from server, using
-            # same client request
-            print(client_request)
-
-            headers = {'ticket': client_request['ticket'],
-                       'directory': client_request['directory'],
-                       'filename': client_request['filename']}
-            r = requests.post("http://" + host + ":" + port + "/server/file/rollback", data='', headers=headers)
+    server_transactions.rollback_async_transaction(client_request)
 
 
 def get_current_server():
@@ -153,31 +112,42 @@ def file_upload():
     return jsonify({'success': True})
 
 
-@application.route('/server/file/download', methods=['POST'])
-def file_download():
-    data = request.get_json(force=True)
-    authentication = data.get('authentication')
-
-    filename = data.get('filename')
-    directory_name = data.get('directory')
+@application.route('/server/file/delete', methods=['POST'])
+def file_delete():
+    headers = request.headers
+    filename_encoded = headers['filename']
+    directory_name_encoded = headers['directory']
+    ticket = headers['ticket']
+    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = Authentication.decode(session_key, directory_name_encoded)
+    filename = Authentication.decode(session_key, filename_encoded)
 
     m = hashlib.md5()
     m.update(directory_name)
-    directory = db.directories.find_one(
-        {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-    if not directory:
+    server = get_current_server()
+    print(server)
+    # check if the directory exists on current server
+    if not db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
+        print("No directory found")
         return jsonify({"success": False})
-
+    else:
+        directory = db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+    # check if the file exists on current server
     file = db.files.find_one(
         {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
+        print("No file found")
         return jsonify({"success": False})
 
-    cache_file_reference = directory['reference'] + "_" + file['reference']
-    if cache.exists(cache_file_reference):
-        return Cache.decompress(cache.get(cache_file_reference))
-    else:
-        return flask.send_file(file["reference"])
+    delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
+    delete_transaction.start()
+
+    if (get_current_server()["is_master"]):
+        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
+        thr.start()  # will run "foo"
+    return jsonify({'success': True})
 
 
 @application.route('/server/file/rollback', methods=['POST'])
@@ -218,42 +188,31 @@ def file_rollback():
     return jsonify({'success': True})
 
 
-@application.route('/server/file/delete', methods=['POST'])
-def file_delete():
-    headers = request.headers
-    filename_encoded = headers['filename']
-    directory_name_encoded = headers['directory']
-    ticket = headers['ticket']
-    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = Authentication.decode(session_key, directory_name_encoded)
-    filename = Authentication.decode(session_key, filename_encoded)
+@application.route('/server/file/download', methods=['POST'])
+def file_download():
+    data = request.get_json(force=True)
+    authentication = data.get('authentication')
+
+    filename = data.get('filename')
+    directory_name = data.get('directory')
 
     m = hashlib.md5()
     m.update(directory_name)
-    server = get_current_server()
-    print(server)
-    # check if the directory exists on current server
-    if not db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
-        print("No directory found")
+    directory = db.directories.find_one(
+        {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+    if not directory:
         return jsonify({"success": False})
-    else:
-        directory = db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-    # check if the file exists on current server
+
     file = db.files.find_one(
         {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     if not file:
-        print("No file found")
         return jsonify({"success": False})
 
-    delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
-    delete_transaction.start()
-
-    if (get_current_server()["is_master"]):
-        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
-        thr.start()  # will run "foo"
-    return jsonify({'success': True})
+    cache_file_reference = directory['reference'] + "_" + file['reference']
+    if cache.exists(cache_file_reference):
+        return Cache.decompress(cache.get(cache_file_reference))
+    else:
+        return flask.send_file(file["reference"])
 
 
 class Transaction(threading.Thread):
