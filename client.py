@@ -52,7 +52,7 @@ r2 = requests.post("http://" + server_host + ":" + server_port + "/server/file/d
 time.sleep(3)
 print r2.text
 
-url = "http://" + server_host + ":" + server_port + "/server/file/rollback"
-print url
-r3 = requests.post(url, headers=headers)
-print r3.text
+# texturl = "http://" + server_host + ":" + server_port + "/server/file/rollback"
+# print url
+# r3 = requests.post(url, headers=headers)
+# print r3.text
