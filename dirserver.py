@@ -9,13 +9,13 @@ import zlib
 
 import flask
 import redis
-import requests
 from Crypto.Cipher import AES
 from flask import Flask
 from flask import jsonify
 from flask import request
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
+
 from transactions import ServerTransactions
 
 application = Flask(__name__)
@@ -44,6 +44,7 @@ SERVER_PORT = None
 def reset():
     db.directories.drop()
     db.files.drop()
+    db.transactions.drop()
 
 
 def upload_async(file, client_request):
@@ -52,10 +53,6 @@ def upload_async(file, client_request):
 
 def delete_async(client_request):
     server_transactions.delete_async_transaction(client_request)
-
-
-def rollback_async(client_request):
-    server_transactions.rollback_async_transaction(client_request)
 
 
 def get_current_server():
@@ -103,9 +100,6 @@ def file_upload():
         file = db.files.find_one(
             {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
 
-    transaction = Transaction(write_lock, file['reference'], directory['reference'], pre_write_cache_reference)
-    transaction.start()
-
     if (get_current_server()["is_master"]):
         thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
@@ -141,49 +135,8 @@ def file_delete():
         print("No file found")
         return jsonify({"success": False})
 
-    delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
-    delete_transaction.start()
-
     if (get_current_server()["is_master"]):
         thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
-        thr.start()  # will run "foo"
-    return jsonify({'success': True})
-
-
-@application.route('/server/file/rollback', methods=['POST'])
-def file_rollback():
-    headers = request.headers
-    filename_encoded = headers['filename']
-    directory_name_encoded = headers['directory']
-    ticket = headers['ticket']
-    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = Authentication.decode(session_key, directory_name_encoded)
-    filename = Authentication.decode(session_key, filename_encoded)
-
-    m = hashlib.md5()
-    m.update(directory_name)
-    server = get_current_server()
-    print(server)
-    # check if the directory exists on current server
-    if not db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
-        print("No directory found")
-        return jsonify({"success": False})
-    else:
-        directory = db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-    # check if the file exists on current server
-    file = db.files.find_one(
-        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
-    if not file:
-        print("No file found")
-        return jsonify({"success": False})
-
-    rollback_transaction = RollbackTransaction(write_lock, file["reference"], directory["reference"])
-    rollback_transaction.start()
-
-    if (get_current_server()["is_master"]):
-        thr = threading.Thread(target=rollback_async, args=(file, headers), kwargs={})
         thr.start()  # will run "foo"
     return jsonify({'success': True})
 
@@ -263,19 +216,11 @@ class RollbackTransaction(threading.Thread):
         self.directory_reference = directory_reference
 
     def run(self):
-        self.lock.acquire()
-        count = 0
-        server_count = get_total_servers()
-        for file in db.files.find({}):
-            if file.find_one({"reference": self.file_reference, "directory": self.directory_reference,
-                              "server": get_current_server()["reference"]}):
-                count += 1
-
-        if count > 0 and count / server_count <= 0.5:
-            delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
-            delete_transaction.start()
-
-        self.lock.release()
+        for server in db.servers.find({}):
+            if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
+                                  "server": server["reference"]}):
+                delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
+                delete_transaction.start()
 
 
 class QueuedWriteHandler(threading.Thread):
@@ -375,6 +320,58 @@ class Directory:
         db.directories.insert({"name": name, "reference": m.hexdigest(), "server": server})
         directory = db.directories.find_one({"name": name, "reference": m.hexdigest()})
         return directory
+
+
+class TransactionStatus:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def create(name, server, status):
+        m = hashlib.md5()
+        m.update(name)
+        transaction = db.transactions.find_one({"reference": m.hexdigest()})
+        if transaction:
+            transaction["ledger"][server] = status
+            # update transaction in Mongo..
+        else:
+            db.transactions.insert({"reference": m.hexdigest(), "ledger": {server: status}})
+
+    @staticmethod
+    def get(name):
+        m = hashlib.md5()
+        m.update(name)
+        return db.transactions.find_one({"reference": m.hexdigest()})
+
+    @staticmethod
+    def total_success_count(name):
+        transaction = TransactionStatus.get(name)
+        ledger = transaction["ledger"]
+        count = 0
+        for server_reference in ledger.iterkeys():
+            if ledger[server_reference] == "SUCCESS":
+                count = count + 1
+        return count
+
+    @staticmethod
+    def total_failure_count(name):
+        transaction = TransactionStatus.get(name)
+        ledger = transaction["ledger"]
+        count = 0
+        for server_reference in ledger.iterkeys():
+            if ledger[server_reference] == "FAILURE":
+                count = count + 1
+        return count
+
+    @staticmethod
+    def total_unknown_count(name):
+        transaction = TransactionStatus.get(name)
+        ledger = transaction["ledger"]
+        count = 0
+        for server_reference in ledger.iterkeys():
+            if ledger[server_reference] == "UNKNOWN":
+                count = count + 1
+        return count
 
 
 cache = Cache()

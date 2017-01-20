@@ -16,6 +16,7 @@ servers = db.servers
 db.servers.drop()
 db.directories.drop()
 db.files.drop()
+db.transactions.drop()
 
 m = hashlib.md5()
 m.update("127.0.0.1" + ":" + "8092")
