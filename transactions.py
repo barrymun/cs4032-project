@@ -2,8 +2,9 @@ import hashlib
 import os
 import threading
 
+
 class ServerTransactions:
-    def upload_async_transaction(file, client_request):
+    def upload_async_transaction(self, file, client_request):
         transaction = Transaction(write_lock, file['reference'], directory['reference'], pre_write_cache_reference)
         transaction.start()
 
@@ -30,11 +31,11 @@ class ServerTransactions:
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                # make API request to '/server/file/rollback for all servers
+                # make API request to '/server/file/delete for all servers
                 for serv in db.servers.find({}):
                     requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
 
-    def delete_async_transaction(client_request):
+    def delete_async_transaction(self, client_request):
         delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
         delete_transaction.start()
 
@@ -43,16 +44,16 @@ class ServerTransactions:
             for server in servers:
                 host = server["host"]
                 port = server["port"]
+
                 if (host == SERVER_HOST and port == SERVER_PORT):
                     continue
-                # make POST request to delete file from server, using
-                # same client request
-                print(client_request)
 
+                print(client_request)
                 headers = {'ticket': client_request['ticket'],
                            'directory': client_request['directory'],
                            'filename': client_request['filename']}
                 r = requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+
                 if r.status_code == 200:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "SUCCESS")
                 else:
@@ -105,21 +106,6 @@ class DeleteTransaction(threading.Thread):
         self.lock.release()
 
 
-class RollbackTransaction(threading.Thread):
-    def __init__(self, lock, file_reference, directory_reference):
-        threading.Thread.__init__(self)
-        self.lock = lock
-        self.file_reference = file_reference
-        self.directory_reference = directory_reference
-
-    def run(self):
-        for server in db.servers.find({}):
-            if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
-                                  "server": server["reference"]}):
-                delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
-                delete_transaction.start()
-
-
 class TransactionStatus:
     def __init__(self):
         pass
@@ -130,6 +116,8 @@ class TransactionStatus:
         m.update(name)
         transaction = db.transactions.find_one({"reference": m.hexdigest()})
         if transaction:
+            # ledger is essentially just the status table here
+            # three status' for the master_server to check
             transaction["ledger"][server] = status
             # update transaction in Mongo..
         else:
@@ -148,7 +136,7 @@ class TransactionStatus:
         count = 0
         for server_reference in ledger.iterkeys():
             if ledger[server_reference] == "SUCCESS":
-                count = count + 1
+                count += 1
         return count
 
     @staticmethod
@@ -158,7 +146,7 @@ class TransactionStatus:
         count = 0
         for server_reference in ledger.iterkeys():
             if ledger[server_reference] == "FAILURE":
-                count = count + 1
+                count += 1
         return count
 
     @staticmethod
@@ -168,5 +156,5 @@ class TransactionStatus:
         count = 0
         for server_reference in ledger.iterkeys():
             if ledger[server_reference] == "UNKNOWN":
-                count = count + 1
+                count += 1
         return count

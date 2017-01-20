@@ -261,7 +261,9 @@ class Directory:
     def create(name, server):
         m = hashlib.md5()
         m.update(name)
-        db.directories.insert({"name": name, "reference": m.hexdigest(), "server": server})
+        db.directories.insert({"name": name
+                                  , "reference": m.hexdigest()
+                                  , "server": server})
         directory = db.directories.find_one({"name": name, "reference": m.hexdigest()})
         return directory
 

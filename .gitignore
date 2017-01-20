@@ -2,3 +2,4 @@
 .idea/
 .idea/workspace.xml
 redis-stable/
+transactions.pyc
