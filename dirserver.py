@@ -3,12 +3,9 @@ import base64
 import datetime
 import hashlib
 import threading
-import uuid
-import zlib
 
-import flask
-import redis
 from Crypto.Cipher import AES
+from diskcache import Cache
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -67,10 +64,10 @@ def get_total_servers():
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
     # Need to update cached record (if exists)
-    pre_write_cache_reference = uuid.uuid4()
-    print(Cache.compress(request.get_data()))
-    cache.create(pre_write_cache_reference, Cache.compress(request.get_data()))
-    print cache.get(pre_write_cache_reference)
+    # pre_write_cache_reference = uuid.uuid4()
+    # print(Cache.compress(request.get_data()))
+    # cache.create(pre_write_cache_reference, Cache.compress(request.get_data()))
+    # print cache.get(pre_write_cache_reference)
 
     headers = request.headers
 
@@ -160,11 +157,11 @@ def file_download():
     if not file:
         return jsonify({"success": False})
 
-    cache_file_reference = directory['reference'] + "_" + file['reference']
-    if cache.exists(cache_file_reference):
-        return Cache.decompress(cache.get(cache_file_reference))
-    else:
-        return flask.send_file(file["reference"])
+        # cache_file_reference = directory['reference'] + "_" + file['reference']
+        # if cache.check(cache_file_reference):
+        #     return Cache.decompress(cache.get(cache_file_reference))
+        # else:
+        #     return flask.send_file(file["reference"])
 
 
 class QueuedWriteHandler(threading.Thread):
@@ -200,42 +197,6 @@ class Authentication:
         return decoded.strip()
 
 
-class Cache:
-    def __init__(self, host='127.0.0.1', port=6379, db=0):
-        self.host = host
-        self.port = port
-        self.db = db
-        self.pool = None
-        self.server = None
-
-    def create_instance(self):
-        self.pool = redis.ConnectionPool(host=self.host, port=self.port, db=self.db)
-        self.server = redis.Redis(connection_pool=self.pool)
-
-    def get_instance(self):
-        return self.server
-
-    def get(self, key):
-        return self.server.get(key)
-
-    def create(self, key, data):
-        self.server.set(key, data)
-
-    def delete(self, key):
-        self.server.delete(key)
-
-    def exists(self, key):
-        return self.server.exists(key)
-
-    @staticmethod
-    def compress(data):
-        return zlib.compress(data)
-
-    @staticmethod
-    def decompress(data):
-        return zlib.decompress(data)
-
-
 class File:
     def __init__(self):
         pass
@@ -268,8 +229,7 @@ class Directory:
         return directory
 
 
-cache = Cache()
-cache.create_instance()
+cache = Cache('/tmp/mycachedir')
 
 if __name__ == '__main__':
     with application.app_context():

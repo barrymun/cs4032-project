@@ -16,7 +16,7 @@ def pad(s):
 
 
 # ESTABLISHING CONNECTION WITH AUTHENTICATION SERVER
-cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # never use ECB in strong systems obviously
+cipher = AES.new(PUBLIC_KEY, AES.MODE_ECB)  # avoid ECB generally, but here is ok
 encrypted_password = base64.b64encode(cipher.encrypt(decrypted_password))
 
 headers = {'Content-type': 'application/json'}
