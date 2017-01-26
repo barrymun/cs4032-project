@@ -19,6 +19,8 @@ RUN python get-pip.py && \
 
     pip install pycrypto
 
-COPY auth-server.py /src/auth-server.py
+COPY setup.py /src/setup.py
+CMD ["python","/src/setup.py"]
 
+COPY auth-server.py /src/auth-server.py
 CMD ["python","/src/auth-server.py"]
