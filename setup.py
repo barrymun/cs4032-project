@@ -2,9 +2,6 @@ import hashlib
 
 from pymongo import MongoClient
 
-'''
-Set up global variables here
-'''
 mongo_server = "127.0.0.1"
 mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
@@ -13,6 +10,7 @@ connection = MongoClient(connect_string)
 db = connection.project  # equal to > use test_database
 servers = db.servers
 
+db.clients.drop()
 db.servers.drop()
 db.directories.drop()
 db.files.drop()

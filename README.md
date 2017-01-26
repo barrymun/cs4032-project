@@ -27,7 +27,7 @@ Run the above as many times as required, in new windows of course.
 ## Finally, run the test client to ensure that the requests are handled by the worker servers, and the master_server manages these instances correctly.
 
 ```bash
-python client.py
+python user.py
 ```
 
 # Setting up the Distributed File System: (WITH DOCKER)

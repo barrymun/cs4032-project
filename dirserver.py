@@ -32,7 +32,7 @@ servers = db.servers
 server_transactions = ServerTransactions()
 
 # constants
-AUTH_SERVER_STORAGE_SERVER_KEY = "d41d8cd98f00b204e9800998ecf8427e"
+AUTH_SERVER_STORAGE_SERVER_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 SERVER_HOST = None
 SERVER_PORT = None
 
@@ -186,13 +186,13 @@ class Authentication:
 
     @staticmethod
     def encode(key, decoded):
-        cipher = AES.new(key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+        cipher = AES.new(key, AES.MODE_ECB)
         encoded = base64.b64encode(cipher.encrypt(Authentication.pad(decoded)))
         return encoded
 
     @staticmethod
     def decode(key, encoded):
-        cipher = AES.new(key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+        cipher = AES.new(key, AES.MODE_ECB)
         decoded = cipher.decrypt(base64.b64decode(encoded))
         return decoded.strip()
 
