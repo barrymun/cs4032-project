@@ -5,7 +5,6 @@ import hashlib
 import threading
 
 from Crypto.Cipher import AES
-from diskcache import Cache
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -18,20 +17,13 @@ application = Flask(__name__)
 mongo = PyMongo(application)
 write_lock = threading.Lock()
 write_queue = Queue.Queue(maxsize=100)
-'''
-Set up global variables here
-'''
-
 mongo_server = "127.0.0.1"
 mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
-
 connection = MongoClient(connect_string)
-db = connection.project  # equal to > use test_database
+db = connection.project
 servers = db.servers
 server_transactions = ServerTransactions()
-
-# constants
 AUTH_SERVER_STORAGE_SERVER_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 SERVER_HOST = None
 SERVER_PORT = None
@@ -61,6 +53,12 @@ def get_total_servers():
         return count(db.servers.find({}))
 
 
+def decode(key, encoded):
+    cypher = AES.new(key, AES.MODE_ECB)
+    decyphered = cypher.decrypt(base64.b64decode(encoded))
+    return decyphered.strip()
+
+
 @application.route('/server/file/upload', methods=['POST'])
 def file_upload():
     # Need to update cached record (if exists)
@@ -70,28 +68,39 @@ def file_upload():
     # print cache.get(pre_write_cache_reference)
 
     headers = request.headers
-
     filename_encoded = headers['filename']
     directory_name_encoded = headers['directory']
     ticket = headers['ticket']
-    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = Authentication.decode(session_key, directory_name_encoded)
-    filename = Authentication.decode(session_key, filename_encoded)
-
+    session_key = decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = decode(session_key, directory_name_encoded)
+    filename = decode(session_key, filename_encoded)
     m = hashlib.md5()
     m.update(directory_name)
-    server = get_current_server()
 
     if not db.directories.find_one(
             {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
-        directory = Directory.create(directory_name, server["reference"])
+        m = hashlib.md5()
+        m.update(directory_name)
+        db.directories.insert({"name": directory_name
+                                  , "reference": m.hexdigest()
+                                  , "server": get_current_server()["reference"]})
+        directory = db.directories.find_one(
+            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
     else:
         directory = db.directories.find_one(
             {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
 
     if not db.files.find_one(
             {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]}):
-        file = File.create(filename, directory['name'], directory['reference'], get_current_server()["reference"])
+        m = hashlib.md5()
+        m.update(directory['reference'] + "/" + directory['name'])
+        db.files.insert({"name": filename
+                            , "directory": directory['reference']
+                            , "server": get_current_server()["reference"]
+                            , "reference": m.hexdigest()
+                            , "updated_at": datetime.datetime.utcnow()})
+        file = db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
     else:
         file = db.files.find_one(
             {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
@@ -108,10 +117,9 @@ def file_delete():
     filename_encoded = headers['filename']
     directory_name_encoded = headers['directory']
     ticket = headers['ticket']
-    session_key = Authentication.decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = Authentication.decode(session_key, directory_name_encoded)
-    filename = Authentication.decode(session_key, filename_encoded)
-
+    session_key = decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
+    directory_name = decode(session_key, directory_name_encoded)
+    filename = decode(session_key, filename_encoded)
     m = hashlib.md5()
     m.update(directory_name)
     server = get_current_server()
@@ -140,11 +148,8 @@ def file_delete():
 @application.route('/server/file/download', methods=['POST'])
 def file_download():
     data = request.get_json(force=True)
-    authentication = data.get('authentication')
-
     filename = data.get('filename')
     directory_name = data.get('directory')
-
     m = hashlib.md5()
     m.update(directory_name)
     directory = db.directories.find_one(
@@ -176,60 +181,7 @@ class QueuedWriteHandler(threading.Thread):
             write_queue.task_done()
 
 
-class Authentication:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def pad(s):
-        return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
-
-    @staticmethod
-    def encode(key, decoded):
-        cipher = AES.new(key, AES.MODE_ECB)
-        encoded = base64.b64encode(cipher.encrypt(Authentication.pad(decoded)))
-        return encoded
-
-    @staticmethod
-    def decode(key, encoded):
-        cipher = AES.new(key, AES.MODE_ECB)
-        decoded = cipher.decrypt(base64.b64decode(encoded))
-        return decoded.strip()
-
-
-class File:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def create(name, directory_name, directory_reference, server_reference):
-        m = hashlib.md5()
-        m.update(directory_reference + "/" + directory_name)
-        db.files.insert({"name": name
-                            , "directory": directory_reference
-                            , "server": server_reference
-                            , "reference": m.hexdigest()
-                            , "updated_at": datetime.datetime.utcnow()})
-        file = db.files.find_one({"reference": m.hexdigest()})
-        return file
-
-
-class Directory:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def create(name, server):
-        m = hashlib.md5()
-        m.update(name)
-        db.directories.insert({"name": name
-                                  , "reference": m.hexdigest()
-                                  , "server": server})
-        directory = db.directories.find_one({"name": name, "reference": m.hexdigest()})
-        return directory
-
-
-cache = Cache('/tmp/mycachedir')
+# cache = Cache('/tmp/mycachedir')
 
 if __name__ == '__main__':
     with application.app_context():
