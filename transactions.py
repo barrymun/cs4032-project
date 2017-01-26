@@ -15,8 +15,6 @@ class ServerTransactions:
                 port = server["port"]
                 if (host == SERVER_HOST and port == SERVER_PORT):
                     continue
-                # make POST request to upload file to server, using
-                # same client request
                 data = open(file['reference'], 'rb').read()
                 print(client_request)
 
@@ -31,9 +29,7 @@ class ServerTransactions:
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                # make API request to '/server/file/delete for all servers
-                for serv in db.servers.find({}):
-                    requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
 
     def delete_async_transaction(self, client_request):
         delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
@@ -61,9 +57,7 @@ class ServerTransactions:
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                # make API request to '/server/file/rollback for all servers
-                for serv in db.servers.find({}):
-                    requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
 
 
 class Transaction(threading.Thread):
@@ -78,14 +72,12 @@ class Transaction(threading.Thread):
         self.lock.acquire()
         reference = db.writes.find_one({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
         if (reference):
-            # then, queue the write
             write_queue.put({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
             self.lock.release()
             return
         self.lock.release()
-        # now, write to the file on disk and Redis cache
-        cache.create(self.directory_reference + "_" + self.file_reference, cache.get(self.cache_reference))
-        cache.delete(self.cache_reference)
+        # cache.create(self.directory_reference + "_" + self.file_reference, cache.get(self.cache_reference))
+        # cache.delete(self.cache_reference)
         with open(self.file_reference, "wb") as fo:
             fo.write(cache.get(self.directory_reference + "_" + self.file_reference))
 
@@ -101,7 +93,7 @@ class DeleteTransaction(threading.Thread):
         self.lock.acquire()
         if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
                               "server": get_current_server()["reference"]}):
-            cache.delete(self.file_reference + "_" + self.directory_reference)
+            # cache.delete(self.file_reference + "_" + self.directory_reference)
             os.remove(self.file_reference)
         self.lock.release()
 
@@ -119,7 +111,7 @@ class TransactionStatus:
             # ledger is essentially just the status table here
             # three status' for the master_server to check
             transaction["ledger"][server] = status
-            # update transaction in Mongo..
+            # update transaction in mongodb
         else:
             db.transactions.insert({"reference": m.hexdigest(), "ledger": {server: status}})
 
