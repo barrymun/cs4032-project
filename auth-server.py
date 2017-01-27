@@ -13,7 +13,7 @@ from flask_pymongo import PyMongo
 application = Flask(__name__)
 mongo = PyMongo(application)
 
-AUTH_SERVER_STORAGE_SERVER_KEY = "17771fab5708b94b42cfd00c444b6eaa"
+AUTH_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 
 
 @application.route('/client/create', methods=['GET'])
@@ -22,7 +22,7 @@ def client_create():
     db.clients.drop()
     db.clients.insert(
         {"client_id": "1"
-            , "session_key": "F8C43DFA7C7E6E59C7358824AA11A"
+            , "s_id": "F8C43DFA7C7E6E59C7358824AA11A"
             , "session_key_expires": (datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 4)).strftime(
             '%Y-%m-%d %H:%M:%S')
             , "public_key": "0123456789abcdef0123456789abcdef"
@@ -43,11 +43,11 @@ def client_auth():
     decypher = cypher.decrypt(base64.b64decode(encrypted_password))
     pw = decypher.strip()
     if pw == current_client['password']:
-        session_key = ''.join(
+        s_id = ''.join(
             random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
         session_key_valid_time = (datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 250)).strftime(
             '%Y-%m-%d %H:%M:%S')
-        current_client['session_key'] = session_key
+        current_client['s_id'] = s_id
         current_client['session_key_expires'] = session_key_valid_time
         if db.clients.update({'client_id': client_id}, current_client, upsert=True) != False:
             client = current_client
@@ -56,14 +56,14 @@ def client_auth():
     else:
         return False
     if client:
-        cypher2 = AES.new(AUTH_SERVER_STORAGE_SERVER_KEY, AES.MODE_ECB)
-        val = client['session_key'] + b" " * (AES.block_size - len(client['session_key']) % AES.block_size)
+        cypher2 = AES.new(AUTH_KEY, AES.MODE_ECB)
+        val = client['s_id'] + b" " * (AES.block_size - len(client['s_id']) % AES.block_size)
         encoded_val = base64.b64encode(cypher2.encrypt(val))
-        token = json.dumps({'session_key': client['session_key'],
+        token = json.dumps({'s_id': client['s_id'],
                             'session_key_expires': client['session_key_expires'],
                             'server_host': "127.0.0.1",
                             'server_port': "8093",
-                            'ticket': encoded_val})
+                            'access_key': encoded_val})
         cypher3 = AES.new(client['public_key'], AES.MODE_ECB)
         val2 = token + b" " * (AES.block_size - len(token) % AES.block_size)
         encoded_val2 = base64.b64encode(cypher3.encrypt(val2))

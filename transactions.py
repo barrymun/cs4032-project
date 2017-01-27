@@ -3,6 +3,8 @@ import os
 import threading
 
 
+SERVER_RESPONSE_POS = 200
+
 class ServerTransactions:
     def upload_async_transaction(self, file, client_request):
         transaction = Transaction(write_lock, file['reference'], directory['reference'], pre_write_cache_reference)
@@ -18,46 +20,41 @@ class ServerTransactions:
                 data = open(file['reference'], 'rb').read()
                 print(client_request)
 
-                headers = {'ticket': client_request['ticket'],
+                headers = {'access_key': client_request['access_key'],
                            'directory': client_request['directory'],
                            'filename': client_request['filename']}
-                r = requests.post("http://" + host + ":" + port + "/server/file/upload", data=data, headers=headers)
-                if r.status_code == 200:
+                r = requests.post("http://" + host + ":" + port + "/f/upload", data=data, headers=headers)
+                if r.status_code == SERVER_RESPONSE_POS:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "SUCCESS")
                 else:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "FAILURE")
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
 
     def delete_async_transaction(self, client_request):
         delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
         delete_transaction.start()
-
         with application.app_context():
             servers = db.servers.find()
             for server in servers:
                 host = server["host"]
                 port = server["port"]
-
                 if (host == SERVER_HOST and port == SERVER_PORT):
                     continue
-
                 print(client_request)
-                headers = {'ticket': client_request['ticket'],
+                headers = {'access_key': client_request['access_key'],
                            'directory': client_request['directory'],
                            'filename': client_request['filename']}
-                r = requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
-
-                if r.status_code == 200:
+                r = requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
+                if r.status_code == SERVER_RESPONSE_POS:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "SUCCESS")
                 else:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "FAILURE")
-
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                requests.post("http://" + host + ":" + port + "/server/file/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
 
 
 class Transaction(threading.Thread):
@@ -76,8 +73,6 @@ class Transaction(threading.Thread):
             self.lock.release()
             return
         self.lock.release()
-        # cache.create(self.directory_reference + "_" + self.file_reference, cache.get(self.cache_reference))
-        # cache.delete(self.cache_reference)
         with open(self.file_reference, "wb") as fo:
             fo.write(cache.get(self.directory_reference + "_" + self.file_reference))
 
@@ -92,7 +87,7 @@ class DeleteTransaction(threading.Thread):
     def run(self):
         self.lock.acquire()
         if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
-                              "server": get_current_server()["reference"]}):
+                              "server": server_instance()["reference"]}):
             # cache.delete(self.file_reference + "_" + self.directory_reference)
             os.remove(self.file_reference)
         self.lock.release()
@@ -108,10 +103,7 @@ class TransactionStatus:
         m.update(name)
         transaction = db.transactions.find_one({"reference": m.hexdigest()})
         if transaction:
-            # ledger is essentially just the status table here
-            # three status' for the master_server to check
             transaction["ledger"][server] = status
-            # update transaction in mongodb
         else:
             db.transactions.insert({"reference": m.hexdigest(), "ledger": {server: status}})
 

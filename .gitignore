@@ -3,3 +3,4 @@
 .idea/workspace.xml
 redis-stable/
 transactions.pyc
+test.py

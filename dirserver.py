@@ -24,15 +24,9 @@ connection = MongoClient(connect_string)
 db = connection.project
 servers = db.servers
 server_transactions = ServerTransactions()
-AUTH_SERVER_STORAGE_SERVER_KEY = "17771fab5708b94b42cfd00c444b6eaa"
+AUTH_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 SERVER_HOST = None
 SERVER_PORT = None
-
-
-def reset():
-    db.directories.drop()
-    db.files.drop()
-    db.transactions.drop()
 
 
 def upload_async(file, client_request):
@@ -43,7 +37,7 @@ def delete_async(client_request):
     server_transactions.delete_async_transaction(client_request)
 
 
-def get_current_server():
+def server_instance():
     with application.app_context():
         return db.servers.find_one({"host": SERVER_HOST, "port": SERVER_PORT})
 
@@ -59,117 +53,102 @@ def decode(key, encoded):
     return decyphered.strip()
 
 
-@application.route('/server/file/upload', methods=['POST'])
-def file_upload():
-    # Need to update cached record (if exists)
-    # pre_write_cache_reference = uuid.uuid4()
-    # print(Cache.compress(request.get_data()))
-    # cache.create(pre_write_cache_reference, Cache.compress(request.get_data()))
-    # print cache.get(pre_write_cache_reference)
-
-    headers = request.headers
-    filename_encoded = headers['filename']
-    directory_name_encoded = headers['directory']
-    ticket = headers['ticket']
-    session_key = decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = decode(session_key, directory_name_encoded)
-    filename = decode(session_key, filename_encoded)
-    m = hashlib.md5()
-    m.update(directory_name)
-
-    if not db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
-        m = hashlib.md5()
-        m.update(directory_name)
-        db.directories.insert({"name": directory_name
-                                  , "reference": m.hexdigest()
-                                  , "server": get_current_server()["reference"]})
-        directory = db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-    else:
-        directory = db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-
-    if not db.files.find_one(
-            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]}):
-        m = hashlib.md5()
-        m.update(directory['reference'] + "/" + directory['name'])
-        db.files.insert({"name": filename
-                            , "directory": directory['reference']
-                            , "server": get_current_server()["reference"]
-                            , "reference": m.hexdigest()
-                            , "updated_at": datetime.datetime.utcnow()})
-        file = db.files.find_one(
-            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
-    else:
-        file = db.files.find_one(
-            {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
-
-    if (get_current_server()["is_master"]):
-        thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
-        thr.start()  # will run "foo"
-    return jsonify({'success': True})
-
-
-@application.route('/server/file/delete', methods=['POST'])
-def file_delete():
-    headers = request.headers
-    filename_encoded = headers['filename']
-    directory_name_encoded = headers['directory']
-    ticket = headers['ticket']
-    session_key = decode(AUTH_SERVER_STORAGE_SERVER_KEY, ticket).strip()
-    directory_name = decode(session_key, directory_name_encoded)
-    filename = decode(session_key, filename_encoded)
-    m = hashlib.md5()
-    m.update(directory_name)
-    server = get_current_server()
-    print(server)
-    # check if the directory exists on current server
-    if not db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]}):
-        print("No directory found")
-        return jsonify({"success": False})
-    else:
-        directory = db.directories.find_one(
-            {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
-    # check if the file exists on current server
-    file = db.files.find_one(
-        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
-    if not file:
-        print("No file found")
-        return jsonify({"success": False})
-
-    if (get_current_server()["is_master"]):
-        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
-        thr.start()  # will run "foo"
-    return jsonify({'success': True})
-
-
-@application.route('/server/file/download', methods=['POST'])
-def file_download():
+@application.route('/f/download', methods=['POST'])
+def download():
     data = request.get_json(force=True)
     filename = data.get('filename')
-    directory_name = data.get('directory')
-    m = hashlib.md5()
-    m.update(directory_name)
+    dir_ref = data.get('directory')
+    m_digest = hashlib.md5()
+    m_digest.update(dir_ref)
     directory = db.directories.find_one(
-        {"name": directory_name, "reference": m.hexdigest(), "server": get_current_server()["reference"]})
+        {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]})
     if not directory:
         return jsonify({"success": False})
 
     file = db.files.find_one(
-        {"name": filename, "directory": directory['reference'], "server": get_current_server()["reference"]})
+        {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]})
     if not file:
         return jsonify({"success": False})
 
-        # cache_file_reference = directory['reference'] + "_" + file['reference']
-        # if cache.check(cache_file_reference):
-        #     return Cache.decompress(cache.get(cache_file_reference))
-        # else:
-        #     return flask.send_file(file["reference"])
+
+@application.route('/f/upload', methods=['POST'])
+def upload():
+    headers = request.headers
+    file_hash = headers['filename']
+    directory_name_encoded = headers['directory']
+    access_key = headers['access_key']
+    s_id = decode(AUTH_KEY, access_key).strip()
+    dir_ref = decode(s_id, directory_name_encoded)
+    filename = decode(s_id, file_hash)
+    m_digest = hashlib.md5()
+    m_digest.update(dir_ref)
+    if not db.directories.find_one(
+            {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]}):
+        m_digest = hashlib.md5()
+        m_digest.update(dir_ref)
+        db.directories.insert({"name": dir_ref
+                                  , "reference": m_digest.hexdigest()
+                                  , "server": server_instance()["reference"]})
+        directory = db.directories.find_one(
+            {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]})
+    else:
+        directory = db.directories.find_one(
+            {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]})
+
+    if not db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]}):
+        m_digest = hashlib.md5()
+        m_digest.update(directory['reference'] + "/" + directory['name'])
+        db.files.insert({"name": filename
+                            , "directory": directory['reference']
+                            , "server": server_instance()["reference"]
+                            , "reference": m_digest.hexdigest()
+                            , "updated_at": datetime.datetime.utcnow()})
+        file = db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+    else:
+        file = db.files.find_one(
+            {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+
+    if (server_instance()["is_master"]):
+        thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
+        thr.start()
+    return jsonify({'success': True})
 
 
-class QueuedWriteHandler(threading.Thread):
+@application.route('/f/delete', methods=['POST'])
+def delete():
+    headers = request.headers
+    directory_name_encoded = headers['directory']
+    filename_encoded = headers['filename']
+    access_key = headers['access_key']
+    s_id = decode(AUTH_KEY, access_key).strip()
+    dir_ref = decode(s_id, directory_name_encoded)
+    filename = decode(s_id, filename_encoded)
+    m_digest = hashlib.md5()
+    m_digest.update(dir_ref)
+    server = server_instance()
+    print(server)
+    if not db.directories.find_one(
+            {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]}):
+        print("No directory found")
+        return jsonify({"success": False})
+    else:
+        directory = db.directories.find_one(
+            {"name": dir_ref, "reference": m_digest.hexdigest(), "server": server_instance()["reference"]})
+    file = db.files.find_one(
+        {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+    if not file:
+        print("No file found")
+        return jsonify({"success": False})
+
+    if (server_instance()["is_master"]):
+        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
+        thr.start()
+    return jsonify({'success': True})
+
+
+class QHandler(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
@@ -181,21 +160,18 @@ class QueuedWriteHandler(threading.Thread):
             write_queue.task_done()
 
 
-# cache = Cache('/tmp/mycachedir')
-
 if __name__ == '__main__':
     with application.app_context():
-        m = hashlib.md5()
-
+        m_digest = hashlib.md5()
         servers = db.servers.find()
-        for server in servers:
-            print(server)
-            if (server['in_use'] == False):
-                server['in_use'] = True
-                SERVER_PORT = server['port']
-                SERVER_HOST = server['host']
-                queued_write_handler = QueuedWriteHandler()
-                queued_write_handler.setDaemon(True)
-                queued_write_handler.start()
-                db.servers.update({'reference': server['reference']}, server, upsert=True)
-                application.run(host=server['host'], port=server['port'])
+        for s in servers:
+            print(s)
+            if (s['in_use'] == False):
+                s['in_use'] = True
+                SERVER_PORT = s['port']
+                SERVER_HOST = s['host']
+                q_handler = QHandler()
+                q_handler.setDaemon(True)
+                q_handler.start()
+                db.servers.update({'reference': s['reference']}, s, upsert=True)
+                application.run(host=s['host'], port=s['port'])
