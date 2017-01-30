@@ -7,7 +7,7 @@ mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
 
 connection = MongoClient(connect_string)
-db = connection.project  # equal to > use test_database
+db = connection.project
 servers = db.servers
 
 db.clients.drop()

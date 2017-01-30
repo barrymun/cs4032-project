@@ -31,7 +31,7 @@ class ServerTransactions:
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/f/upload", data='', headers=headers)
 
     def delete_async_transaction(self, client_request):
         delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
