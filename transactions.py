@@ -2,14 +2,13 @@ import hashlib
 import os
 import threading
 
-
 SERVER_RESPONSE_POS = 200
+
 
 class ServerTransactions:
     def upload_async_transaction(self, file, client_request):
-        transaction = Transaction(write_lock, file['reference'], directory['reference'], pre_write_cache_reference)
+        transaction = Transaction(write_lock, file['reference'], directory['reference'])
         transaction.start()
-
         with application.app_context():
             servers = db.servers.find()
             for server in servers:
@@ -23,7 +22,7 @@ class ServerTransactions:
                 headers = {'access_key': client_request['access_key'],
                            'directory': client_request['directory'],
                            'filename': client_request['filename']}
-                r = requests.post("http://" + host + ":" + port + "/f/upload", data=data, headers=headers)
+                r = requests.post("http://" + host + ":" + port + "/file/upload", data=data, headers=headers)
                 if r.status_code == SERVER_RESPONSE_POS:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "SUCCESS")
                 else:
@@ -31,7 +30,7 @@ class ServerTransactions:
 
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                requests.post("http://" + host + ":" + port + "/f/upload", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/file/upload", data='', headers=headers)
 
     def delete_async_transaction(self, client_request):
         delete_transaction = DeleteTransaction(write_lock, file["reference"], directory["reference"])
@@ -47,34 +46,31 @@ class ServerTransactions:
                 headers = {'access_key': client_request['access_key'],
                            'directory': client_request['directory'],
                            'filename': client_request['filename']}
-                r = requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
+                r = requests.post("http://" + host + ":" + port + "/file/delete", data='', headers=headers)
                 if r.status_code == SERVER_RESPONSE_POS:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "SUCCESS")
                 else:
                     TransactionStatus.create(file['reference'] + directory['reference'], server, "FAILURE")
             if (TransactionStatus.total_success_count(file['reference'] + directory['reference'])
                     < TransactionStatus.total_success_count(file['reference'] + directory['reference'])):
-                requests.post("http://" + host + ":" + port + "/f/delete", data='', headers=headers)
+                requests.post("http://" + host + ":" + port + "/file/delete", data='', headers=headers)
 
 
 class Transaction(threading.Thread):
-    def __init__(self, lock, file_reference, directory_reference, cache_reference):
+    def __init__(self, lock, file_reference, directory_reference):
         threading.Thread.__init__(self)
         self.lock = lock
         self.file_reference = file_reference
-        self.cache_reference = cache_reference
         self.directory_reference = directory_reference
 
     def run(self):
         self.lock.acquire()
-        reference = db.writes.find_one({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
+        reference = db.writes.find_one({"file_reference": self.file_reference})
         if (reference):
-            write_queue.put({"file_reference": self.file_reference, "cache_reference": self.cache_reference})
+            write_queue.put({"file_reference": self.file_reference})
             self.lock.release()
             return
         self.lock.release()
-        with open(self.file_reference, "wb") as fo:
-            fo.write(cache.get(self.directory_reference + "_" + self.file_reference))
 
 
 class DeleteTransaction(threading.Thread):
@@ -88,7 +84,6 @@ class DeleteTransaction(threading.Thread):
         self.lock.acquire()
         if db.files.find_one({"reference": self.file_reference, "directory": self.directory_reference,
                               "server": server_instance()["reference"]}):
-            # cache.delete(self.file_reference + "_" + self.directory_reference)
             os.remove(self.file_reference)
         self.lock.release()
 

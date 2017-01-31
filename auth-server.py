@@ -44,7 +44,7 @@ def authorise_user():
     user_pwd = data.get('pwd')
     get_current_user = db.users.find_one({'user_id': user_id})
     pub_key = get_current_user['public_key']
-    # print "\npub key = [ " + pub_key + " ]\n"
+    # print "\npub_key = [ " + pub_key + " ]\n"
     encrypt_user_pwd = AES.new(pub_key, AES.MODE_ECB).decrypt(base64.b64decode(user_pwd))
     pw = encrypt_user_pwd.strip()
     # print "\npw = [ " + pw + " ]\n"

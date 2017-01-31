@@ -33,33 +33,38 @@ request = requests.post("http://localhost:5000/user/auth", data=json.dumps(paylo
 if (request != None):
     print "CONTINUE WITH NEXT STEPS HERE - FILE MANAGEMENT"
 
-# response_body = request.text
-# encoded_token = json.loads(response_body)["token"]
-# cypher = AES.new(PUBLIC_KEY, AES.MODE_ECB)
-# decypher = cypher.decrypt(base64.b64decode(encoded_token))
-# decyphered_data = json.loads(decypher.strip())
-# s_id = decyphered_data["s_id"]
-# print("DECYPHER SUCCESS")
-# print(s_id)
-# access_key = decyphered_data["access_key"]
-# server_host = decyphered_data["server_host"]
-# server_port = decyphered_data["server_port"]
-#
-# cypher = AES.new(s_id, AES.MODE_ECB)
-# encrypt_directory = "/home/test" + b" " * (AES.block_size - len("/home/test") % AES.block_size)
-# directory = base64.b64encode(cypher.encrypt(encrypt_directory))
-# encrypt_filename = "test.txt" + b" " * (AES.block_size - len("test.txt") % AES.block_size)
-# filename = base64.b64encode(cypher.encrypt(encrypt_filename))
-#
-# data = open('test.txt', 'rb').read()
-# headers = {'access_key': access_key, 'directory': directory, 'filename': filename}
-# request = requests.post("http://" + server_host + ":" + server_port + "/f/upload", data=data, headers=headers)
-# time.sleep(2)
-# print request.text
-# request2 = requests.post("http://" + server_host + ":" + server_port + "/f/delete", headers=headers)
-# time.sleep(2)
-# print request2.text
+    server_response = request.text
+    print "\nserver_response = [ " + server_response + " ]"
+    encoded_token = json.loads(server_response)["token"]
+    print "\nencoded_token = [ " + encoded_token + " ]"
+    cypher = AES.new(PUBLIC_KEY, AES.MODE_ECB)
+    decypher = cypher.decrypt(base64.b64decode(encoded_token))
+    data = json.loads(decypher.strip())
+    user_session_id = data["user_session_id"]
+    # print(user_session_id)
+    access_key = data["access_key"]
+    server_host = data["server_host"]
+    server_port = data["server_port"]
+    print("DATA DECRYPTION SUCCESS")
 
-# request3 = requests.post("http://" + server_host + ":" + server_port + "/server/file/rollback", headers=headers)
-# time.sleep(2)
-# print request3.text
+    directory = "/fileserver/location"
+    filename = "test.txt"
+
+    data = open('test.txt', 'rb').read()
+    headers = {'access_key': access_key, 'directory': directory, 'filename': filename}
+
+    request = requests.post("http://" + server_host + ":" + server_port + "/file/upload", data=data, headers=headers)
+    # time.sleep(2)
+    print request.text
+
+    request = requests.post("http://" + server_host + ":" + server_port + "/file/download", headers=headers)
+    # time.sleep(2)
+    print request.text
+
+    request2 = requests.post("http://" + server_host + ":" + server_port + "/file/delete", headers=headers)
+    # time.sleep(2)
+    print request2.text
+
+    # request3 = requests.post("http://" + server_host + ":" + server_port + "/server/file/rollback", headers=headers)
+    # time.sleep(2)
+    # print request3.text
