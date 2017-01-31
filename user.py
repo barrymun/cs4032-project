@@ -15,19 +15,17 @@ PUBLIC_KEY = "4ThisIsARandomlyGenAESpublicKey4"
 user_id = "1"
 user_pwd = "notsoez2HackThis"
 
-cypher = AES.new(PUBLIC_KEY, AES.MODE_ECB)
-encrypt_user_pwd = base64.b64encode(cypher.encrypt(user_pwd))
+encrypt_user_pwd = base64.b64encode(AES.new(PUBLIC_KEY, AES.MODE_ECB).encrypt(user_pwd))
 
 headers = {'Content-type': 'application/json'}
-payload = {'user_id': user_id,
-           'pwd': user_pwd,
-           'public_key': PUBLIC_KEY}
+payload = {'user_id': user_id
+           ,'pwd': user_pwd
+           ,'public_key': PUBLIC_KEY}
 request = requests.post("http://localhost:5000/user/create", data=json.dumps(payload), headers=headers)
 
 headers = {'Content-type': 'application/json'}
-payload = {'user_id': user_id,
-           'pwd': encrypt_user_pwd,
-           'public_key': PUBLIC_KEY}
+payload = {'user_id': user_id
+           ,'pwd': user_pwd}
 request = requests.post("http://localhost:5000/user/auth", data=json.dumps(payload), headers=headers)
 
 if (request != None):

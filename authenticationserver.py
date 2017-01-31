@@ -59,17 +59,18 @@ def create_user():
 def authorise_user():
     print "HERE 2"
     data = request.get_json(force=True)
-    user_id = data.get('user_id')
     user_pwd = data.get('pwd')
+    user_id = data.get('user_id')
     get_current_user = db.users.find_one({'user_id': user_id})
-    pub_key = get_current_user['public_key']
-    # print "\npub_key = [ " + pub_key + " ]\n"
-    encrypt_user_pwd = AES.new(pub_key, AES.MODE_ECB).decrypt(base64.b64decode(user_pwd))
-    pw = encrypt_user_pwd.strip()
-    # print "\npw = [ " + pw + " ]\n"
-    # print "\nget_current_user['pwd'] = [ " + get_current_user['pwd'] + " ]\n"
-    # if pw == get_current_user['pwd']:
-    if pw == "notsoez2HackThis":
+    encrypted_pwd = get_current_user['pwd']
+    public_key = get_current_user['public_key']
+    decrypt_user_pwd = AES.new(public_key, AES.MODE_ECB).decrypt(base64.b64decode(encrypted_pwd))
+    pw = decrypt_user_pwd.strip()
+
+    print "\nuser_pwd = [ " + user_pwd + " ]\n"
+    print "\npw = [ " + pw + " ]\n"
+
+    if pw == user_pwd:
         s_id = ''.join(
             random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
         get_current_user['s_id'] = s_id

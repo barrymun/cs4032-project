@@ -1,18 +1,12 @@
 # Setting up the Distributed File System: (WITHOUT DOCKER)
 
-## Run the setup file. This will create all the required mongodb collections
-
-```bash
-python setup.py
-```
-
-A master_server is also created, and managed by the mongodb. All newly created master servers **must** be added to that collection in the db.
-
-## Next, the authentication server must be initialised.
+## first, the authentication server must be initialised.
 
 ```bash
 python auth-server.py
 ```
+
+A master_server is also created, and managed by the mongodb. All newly created master servers **must** be added to that collection in the db.
 
 This will ensure that clients can be managed through creation **and** authentication.
 
@@ -22,7 +16,9 @@ This will ensure that clients can be managed through creation **and** authentica
 python dirserver.py
 ```
 
-Run the above as many times as required, in new terminal windows. Test with at least 2.
+Run the above twice.
+
+The authentication server can be modified to allow for more than 2 instances, but this is the number that has been selected for testing purposes.
 
 ## Finally, run the test user to ensure that the requests are handled by the worker servers, and the master_server manages these instances correctly.
 
