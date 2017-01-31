@@ -48,9 +48,9 @@ if (request != None):
     print("DATA DECRYPTION SUCCESS")
 
     directory = "/fileserver/location"
-    filename = "test.txt"
+    filename = "test-files/test.txt"
 
-    data = open('test.txt', 'rb').read()
+    data = open('test-files/test.txt', 'rb').read()
     headers = {'access_key': access_key, 'directory': directory, 'filename': filename}
 
     request = requests.post("http://" + server_host + ":" + server_port + "/file/upload", data=data, headers=headers)
