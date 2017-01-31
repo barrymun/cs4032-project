@@ -1,5 +1,4 @@
 import base64
-import datetime
 import json
 import random
 import string
@@ -8,65 +7,71 @@ from Crypto.Cipher import AES
 from flask import Flask
 from flask import jsonify
 from flask import request
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 
 application = Flask(__name__)
-mongo = PyMongo(application)
-
+mongo_server = "localhost"
+mongo_port = "27017"
+connect_string = "mongodb://" + mongo_server + ":" + mongo_port
+connection = MongoClient(connect_string)
+db = connection.project
 AUTH_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 
 
-@application.route('/client/create', methods=['GET'])
-def client_create():
-    db = mongo.db.dist
-    db.clients.drop()
-    db.clients.insert(
-        {"client_id": "1"
-            , "s_id": "F8C43DFA7C7E6E59C7358824AA11A"
-            , "session_key_expires": (datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 4)).strftime(
-            '%Y-%m-%d %H:%M:%S')
-            , "public_key": "0123456789abcdef0123456789abcdef"
-            , "password": "0dP1jO2zS7111111"}
+@application.route('/user/create', methods=['POST'])
+def create_user():
+    print "HERE"
+    data = request.get_json(force=True)
+    user_id = data.get('user_id')
+    user_pwd = data.get('pwd')
+    public_key = data.get('public_key')
+    encrypt_user_pwd = base64.b64encode(AES.new(public_key, AES.MODE_ECB).encrypt(user_pwd))
+
+    db.users.insert(
+        {"user_id": user_id
+            , "user_session_id": "F8C43DFA7C7E6E59C7358824AA11A"
+            , "public_key": public_key
+            , "pwd": encrypt_user_pwd}
     )
     return jsonify({})
 
 
-@application.route('/client/auth', methods=['POST'])
-def client_auth():
-    db = mongo.db.dist
+@application.route('/user/auth', methods=['POST'])
+def authorise_user():
+    print "HERE 2"
     data = request.get_json(force=True)
-    client_id = data.get('client_id')
-    encrypted_password = data.get('encrypted_password')
-    current_client = db.clients.find_one({'client_id': client_id})
-    pub_key = current_client['public_key']
-    cypher = AES.new(pub_key, AES.MODE_ECB)
-    decypher = cypher.decrypt(base64.b64decode(encrypted_password))
-    pw = decypher.strip()
-    if pw == current_client['password']:
+    user_id = data.get('user_id')
+    user_pwd = data.get('pwd')
+    get_current_user = db.users.find_one({'user_id': user_id})
+    pub_key = get_current_user['public_key']
+    # print "\npub key = [ " + pub_key + " ]\n"
+    encrypt_user_pwd = AES.new(pub_key, AES.MODE_ECB).decrypt(base64.b64decode(user_pwd))
+    pw = encrypt_user_pwd.strip()
+    # print "\npw = [ " + pw + " ]\n"
+    # print "\nget_current_user['pwd'] = [ " + get_current_user['pwd'] + " ]\n"
+    # if pw == get_current_user['pwd']:
+    if pw == "notsoez2HackThis":
         s_id = ''.join(
             random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
-        session_key_valid_time = (datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 250)).strftime(
-            '%Y-%m-%d %H:%M:%S')
-        current_client['s_id'] = s_id
-        current_client['session_key_expires'] = session_key_valid_time
-        if db.clients.update({'client_id': client_id}, current_client, upsert=True) != False:
-            client = current_client
+        get_current_user['s_id'] = s_id
+        if db.users.update({'user_id': user_id}, get_current_user, upsert=True) != False:
+            user = get_current_user
         else:
-            return False
+            return None
     else:
-        return False
-    if client:
+        return None
+    if user:
         cypher2 = AES.new(AUTH_KEY, AES.MODE_ECB)
-        val = client['s_id'] + b" " * (AES.block_size - len(client['s_id']) % AES.block_size)
+        val = user['s_id'] + b" " * (AES.block_size - len(user['s_id']) % AES.block_size)
         encoded_val = base64.b64encode(cypher2.encrypt(val))
-        token = json.dumps({'s_id': client['s_id'],
-                            'session_key_expires': client['session_key_expires'],
-                            'server_host': "127.0.0.1",
-                            'server_port': "8093",
+        token = json.dumps({'user_session_id': user['user_session_id'],
+                            'server_host': "localhost",
+                            'server_port': "9002",
                             'access_key': encoded_val})
-        cypher3 = AES.new(client['public_key'], AES.MODE_ECB)
+        cypher3 = AES.new(user['public_key'], AES.MODE_ECB)
         val2 = token + b" " * (AES.block_size - len(token) % AES.block_size)
         encoded_val2 = base64.b64encode(cypher3.encrypt(val2))
+        print "AUTHORISATION SUCCESSFUL"
         return jsonify({'success': True, 'token': encoded_val2})
     else:
         return jsonify({'success': False})

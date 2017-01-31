@@ -17,7 +17,7 @@ application = Flask(__name__)
 mongo = PyMongo(application)
 write_lock = threading.Lock()
 write_queue = Queue.Queue(maxsize=100)
-mongo_server = "127.0.0.1"
+mongo_server = "localhost"
 mongo_port = "27017"
 connect_string = "mongodb://" + mongo_server + ":" + mongo_port
 connection = MongoClient(connect_string)
@@ -110,7 +110,7 @@ def upload():
         file = db.files.find_one(
             {"name": filename, "directory": directory['reference'], "server": server_instance()["reference"]})
 
-    if (server_instance()["is_master"]):
+    if (server_instance()["master_server"]):
         thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
         thr.start()
     return jsonify({'success': True})
@@ -142,7 +142,7 @@ def delete():
         print("No file found")
         return jsonify({"success": False})
 
-    if (server_instance()["is_master"]):
+    if (server_instance()["master_server"]):
         thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
         thr.start()
     return jsonify({'success': True})
