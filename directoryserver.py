@@ -15,12 +15,10 @@ from transactions import ServerTransactions
 
 application = Flask(__name__)
 mongo = PyMongo(application)
-write_lock = threading.Lock()
-write_queue = Queue.Queue(maxsize=100)
 mongo_server = "localhost"
 mongo_port = "27017"
-connect_string = "mongodb://" + mongo_server + ":" + mongo_port
-connection = MongoClient(connect_string)
+str = "mongodb://" + mongo_server + ":" + mongo_port
+connection = MongoClient(str)
 db = connection.project
 servers = db.servers
 server_transactions = ServerTransactions()
