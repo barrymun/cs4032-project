@@ -32,7 +32,7 @@ payload = {'user_id': user_id
 request = requests.post("http://localhost:5000/user/auth", data=json.dumps(payload), headers=headers)
 
 if (request != None):
-    print "CONTINUE WITH NEXT STEPS HERE - FILE MANAGEMENT"
+    print "\nCONTINUE WITH NEXT STEPS HERE - FILE MANAGEMENT\n"
 
     server_response = request.text
     encoded_hashed_ticket = json.loads(server_response)["ticket"]
@@ -49,19 +49,19 @@ if (request != None):
     print data
     print ""
 
-    print("DATA DECRYPTION SUCCESS")
+    print("\nDATA DECRYPTION SUCCESS\n")
 
     directory = "/fileserver/location"
     filename = "test-files/test.txt"
-    encrpyted_directory = base64.b64encode(
+    encrypyted_directory = base64.b64encode(
         virtual_structure_hash.encrypt(directory + b" " * (AES.block_size - len(directory) % AES.block_size)))
-    encrpyted_filename = base64.b64encode(
+    encrypyted_filename = base64.b64encode(
         virtual_structure_hash.encrypt(filename + b" " * (AES.block_size - len(filename) % AES.block_size)))
 
     data = open('test-files/test.txt', 'rb').read()
     headers = {'access_key': access_key
-        , 'directory': encrpyted_directory
-        , 'filename': encrpyted_filename}
+        , 'directory': encrypyted_directory
+        , 'filename': encrypyted_filename}
 
     request = requests.post("http://" + server_host + ":" + server_port + "/file/upload", data=data, headers=headers)
     print request.text

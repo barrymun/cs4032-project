@@ -1,4 +1,3 @@
-import Queue
 import base64
 import datetime
 import hashlib
@@ -27,12 +26,14 @@ SERVER_HOST = None
 SERVER_PORT = None
 
 
-def upload_async(file, client_request):
-    server_transactions.upload_async_trans(file, client_request)
+def asynchronous_upload(file, directory, headers):
+    print "\nBEGINNING ASYNCHRONOUS UPLOAD ...\n"
+    server_transactions.asynchronous_upload_transaction(file, directory, headers)
 
 
-def delete_async(client_request):
-    server_transactions.delete_async_transaction(client_request)
+def asynchronous_delete(file, directory, headers):
+    print "\nBEGINNING ASYNCHRONOUS DOWNLOAD ...\n"
+    server_transactions.asynchronous_delete_transaction(file, directory, headers)
 
 
 def server_instance():
@@ -118,8 +119,12 @@ def upload():
         file = db.files.find_one(
             {"name": decrypted_filename, "directory": directory['reference'], "server": server_instance()["reference"]})
 
+    print "\nSERVER_HOST = [ " + SERVER_HOST + " ]\n"
+    print "\nSERVER_PORT = [ " + SERVER_PORT + " ]\n"
+    print server_instance()
+
     if (server_instance()["master_server"]):
-        thr = threading.Thread(target=upload_async, args=(file, headers), kwargs={})
+        thr = threading.Thread(target=asynchronous_upload, args=(file['reference'], directory['reference'], headers), kwargs={})
         thr.start()
     return jsonify({'success': True})
 
@@ -153,7 +158,7 @@ def delete():
         return jsonify({"success": False})
 
     if (server_instance()["master_server"]):
-        thr = threading.Thread(target=delete_async, args=(file, headers), kwargs={})
+        thr = threading.Thread(target=asynchronous_delete, args=(file['reference'], directory['reference'], headers), kwargs={})
         thr.start()
     return jsonify({'success': True})
 

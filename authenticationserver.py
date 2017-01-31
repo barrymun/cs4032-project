@@ -92,13 +92,13 @@ def authorise_user():
 
         ticket = json.dumps({'session_id': user['session_id']
                                 , 'server_host': "localhost"
-                                , 'server_port': "9002"
+                                , 'server_port': "9001"
                                 , 'access_key': encode_hash_session_key})
 
         hash_ticket = ticket + b" " * (AES.block_size - len(ticket) % AES.block_size)
         encode_hash_ticket = base64.b64encode(AES.new(user['public_key'], AES.MODE_ECB).encrypt(hash_ticket))
 
-        print "AUTHORISATION SUCCESSFUL"
+        print "\nAUTHORISATION SUCCESSFUL\n"
         return jsonify({'success': True, 'ticket': encode_hash_ticket})
     else:
         return jsonify({'success': False})
