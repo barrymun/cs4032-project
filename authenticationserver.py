@@ -48,7 +48,7 @@ def create_user():
 
     db.users.insert(
         {"user_id": user_id
-            , "user_session_id": "F8C43DFA7C7E6E59C7358824AA11A"
+            , "session_id": "F8C43DFA7C7E6E59C7358824AA11A"
             , "public_key": public_key
             , "pwd": encrypt_user_pwd}
     )
@@ -67,13 +67,13 @@ def authorise_user():
     decrypt_user_pwd = AES.new(public_key, AES.MODE_ECB).decrypt(base64.b64decode(encrypted_pwd))
     pw = decrypt_user_pwd.strip()
 
-    print "\nuser_pwd = [ " + user_pwd + " ]\n"
-    print "\npw = [ " + pw + " ]\n"
+    # print "\nuser_pwd = [ " + user_pwd + " ]\n"
+    # print "\npw = [ " + pw + " ]\n"
 
     if pw == user_pwd:
-        s_id = ''.join(
+        session_id = ''.join(
             random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
-        get_current_user['s_id'] = s_id
+        get_current_user['session_id'] = session_id
         if db.users.update({'user_id': user_id}, get_current_user, upsert=True) != False:
             user = get_current_user
         else:
@@ -81,18 +81,19 @@ def authorise_user():
     else:
         return None
     if user:
-        cypher2 = AES.new(AUTH_KEY, AES.MODE_ECB)
-        val = user['s_id'] + b" " * (AES.block_size - len(user['s_id']) % AES.block_size)
-        encoded_val = base64.b64encode(cypher2.encrypt(val))
-        token = json.dumps({'user_session_id': user['user_session_id'],
-                            'server_host': "localhost",
-                            'server_port': "9002",
-                            'access_key': encoded_val})
-        cypher3 = AES.new(user['public_key'], AES.MODE_ECB)
-        val2 = token + b" " * (AES.block_size - len(token) % AES.block_size)
-        encoded_val2 = base64.b64encode(cypher3.encrypt(val2))
+        hash_session_key = user['session_id'] + b" " * (AES.block_size - len(user['session_id']) % AES.block_size)
+        encode_hash_session_key = base64.b64encode(AES.new(AUTH_KEY, AES.MODE_ECB).encrypt(hash_session_key))
+
+        ticket = json.dumps({'session_id': user['session_id']
+                                , 'server_host': "localhost"
+                                , 'server_port': "9002"
+                                , 'access_key': encode_hash_session_key})
+
+        hash_ticket = ticket + b" " * (AES.block_size - len(ticket) % AES.block_size)
+        encode_hash_ticket = base64.b64encode(AES.new(user['public_key'], AES.MODE_ECB).encrypt(hash_ticket))
+
         print "AUTHORISATION SUCCESSFUL"
-        return jsonify({'success': True, 'token': encoded_val2})
+        return jsonify({'success': True, 'ticket': encode_hash_ticket})
     else:
         return jsonify({'success': False})
 
