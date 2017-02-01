@@ -16,7 +16,7 @@ This will ensure that clients can be managed through creation **and** authentica
 python directoryserver.py
 ```
 
-Run the above twice.
+Run the above three times. One master_server will be created.
 
 The authentication server can be modified to allow for more than 3 instances, but this is the number that has been selected for testing purposes.
 
