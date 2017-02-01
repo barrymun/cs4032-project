@@ -3,7 +3,9 @@ import datetime
 import hashlib
 import threading
 
+import flask
 from Crypto.Cipher import AES
+from diskcache import Cache
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -24,6 +26,9 @@ server_transactions = ServerTransactions()
 AUTH_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 SERVER_HOST = None
 SERVER_PORT = None
+
+# Set the cache location
+cache = Cache('/tmp/mycachedir')
 
 
 def asynchronous_upload(file, directory, headers):
@@ -63,21 +68,26 @@ def download():
     hash_key.update(decrypted_directory)
 
     directory = db.directories.find_one(
-        {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]})
+        {"name": decrypted_directory, "identifier": hash_key.hexdigest(), "server": server_instance()["identifier"]})
     if not directory:
         return jsonify({"success": False})
 
     file = db.files.find_one(
-        {"name": decrypted_filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+        {"name": decrypted_filename, "directory": directory['identifier'], "server": server_instance()["identifier"]})
     if not file:
         return jsonify({"success": False})
-    # return flask.send_file(file['reference'])
-    return jsonify({"success": True})
+
+    cache_hash = file['identifier'] + "/" + directory['identifier'] + "/" + server_instance()["identifier"]
+    if cache.get(cache_hash):
+        return cache.get(cache_hash)
+    else:
+        return flask.send_file(file['identifier'])
 
 
 @application.route('/file/upload', methods=['POST'])
 def upload():
     print "\nUPLOADING ...\n"
+    data = request.get_data()
     headers = request.headers
     encrypted_filename = headers['filename']
     encrypted_directory = headers['directory']
@@ -91,40 +101,53 @@ def upload():
     hash_key.update(decrypted_directory)
 
     if not db.directories.find_one(
-            {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]}):
+            {"name": decrypted_directory, "identifier": hash_key.hexdigest(),
+             "server": server_instance()["identifier"]}):
         hash_key = hashlib.md5()
         hash_key.update(decrypted_directory)
         db.directories.insert({"name": decrypted_directory
-                                  , "reference": hash_key.hexdigest()
-                                  , "server": server_instance()["reference"]})
+                                  , "identifier": hash_key.hexdigest()
+                                  , "server": server_instance()["identifier"]})
         directory = db.directories.find_one(
-            {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]})
+            {"name": decrypted_directory, "identifier": hash_key.hexdigest(),
+             "server": server_instance()["identifier"]})
     else:
         directory = db.directories.find_one(
-            {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]})
+            {"name": decrypted_directory, "identifier": hash_key.hexdigest(),
+             "server": server_instance()["identifier"]})
 
     if not db.files.find_one(
-            {"name": decrypted_filename, "directory": directory['reference'],
-             "server": server_instance()["reference"]}):
+            {"name": decrypted_filename, "directory": directory['identifier'],
+             "server": server_instance()["identifier"]}):
         hash_key = hashlib.md5()
-        hash_key.update(directory['reference'] + "/" + directory['name'])
+        hash_key.update(directory['identifier'] + "/" + directory['name'] + "/" + server_instance()['identifier'])
         db.files.insert({"name": decrypted_filename
-                            , "directory": directory['reference']
-                            , "server": server_instance()["reference"]
-                            , "reference": hash_key.hexdigest()
-                            , "updated_at": datetime.datetime.utcnow()})
+                                   , "directory": directory['identifier']
+                                   , "server": server_instance()["identifier"]
+                                   , "identifier": hash_key.hexdigest()
+                                   , "updated_at": datetime.datetime.utcnow()})
+
+        file = db.files.find_one({'identifier': hash_key.hexdigest()})
+        cache_hash = file['identifier'] + "/" + directory['identifier'] + "/" + server_instance()["identifier"]
+        cache.set(cache_hash, data)
+        with open(file['identifier'], "wb") as f:
+            f.write(file['identifier'] + "/" + directory['identifier'] + "/" + server_instance()["identifier"])
+
         file = db.files.find_one(
-            {"name": decrypted_filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+            {"name": decrypted_filename, "directory": directory['identifier'],
+             "server": server_instance()["identifier"]})
     else:
         file = db.files.find_one(
-            {"name": decrypted_filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+            {"name": decrypted_filename, "directory": directory['identifier'],
+             "server": server_instance()["identifier"]})
 
     print "\nSERVER_HOST = [ " + SERVER_HOST + " ]\n"
     print "\nSERVER_PORT = [ " + SERVER_PORT + " ]\n"
     print server_instance()
 
     if (server_instance()["master_server"]):
-        thr = threading.Thread(target=asynchronous_upload, args=(file['reference'], directory['reference'], headers), kwargs={})
+        thr = threading.Thread(target=asynchronous_upload, args=(file['identifier'], directory['identifier'], headers),
+                               kwargs={})
         thr.start()
     return jsonify({'success': True})
 
@@ -145,20 +168,23 @@ def delete():
     hash_key.update(decrypted_directory)
 
     if not db.directories.find_one(
-            {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]}):
+            {"name": decrypted_directory, "identifier": hash_key.hexdigest(),
+             "server": server_instance()["identifier"]}):
         print("No directory found")
         return jsonify({"success": False})
     else:
         directory = db.directories.find_one(
-            {"name": decrypted_directory, "reference": hash_key.hexdigest(), "server": server_instance()["reference"]})
+            {"name": decrypted_directory, "identifier": hash_key.hexdigest(),
+             "server": server_instance()["identifier"]})
     file = db.files.find_one(
-        {"name": decrypted_filename, "directory": directory['reference'], "server": server_instance()["reference"]})
+        {"name": decrypted_filename, "directory": directory['identifier'], "server": server_instance()["identifier"]})
     if not file:
         print("No file found")
         return jsonify({"success": False})
 
     if (server_instance()["master_server"]):
-        thr = threading.Thread(target=asynchronous_delete, args=(file['reference'], directory['reference'], headers), kwargs={})
+        thr = threading.Thread(target=asynchronous_delete, args=(file['identifier'], directory['identifier'], headers),
+                               kwargs={})
         thr.start()
     return jsonify({'success': True})
 
@@ -171,5 +197,5 @@ if __name__ == '__main__':
                 current_server['in_use'] = True
                 SERVER_PORT = current_server['port']
                 SERVER_HOST = current_server['host']
-                db.servers.update({'reference': current_server['reference']}, current_server, upsert=True)
+                db.servers.update({'identifier': current_server['identifier']}, current_server, upsert=True)
                 application.run(host=current_server['host'], port=current_server['port'])

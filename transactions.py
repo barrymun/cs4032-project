@@ -3,11 +3,12 @@ import os
 import threading
 
 import requests
+from diskcache import Cache
 from flask import Flask
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
 
-write_lock = threading.Lock()
+thread_lock = threading.Lock()
 SERVER_RESPONSE_POS = 200
 application = Flask(__name__)
 mongo = PyMongo(application)
@@ -20,14 +21,13 @@ AUTH_KEY = "17771fab5708b94b42cfd00c444b6eaa"
 SERVER_HOST = None
 SERVER_PORT = None
 
+# Set the cache instance
+cache = Cache('/tmp/mycachedir')
+
 
 def get_current_server(host, port):
     with application.app_context():
         return db.servers.find_one({"host": host, "port": port})
-
-def server_instance():
-    with application.app_context():
-        return db.servers.find_one({"host": SERVER_HOST, "port": SERVER_PORT})
 
 
 class ServerTransactions:
@@ -38,15 +38,22 @@ class ServerTransactions:
             for server in servers:
                 host = server["host"]
                 port = server["port"]
-                transaction = Transaction(write_lock, file, directory)
+                transaction = Transaction(thread_lock, file, directory)
                 transaction.start()
+
+                cache_hash = file + "/" + directory + "/" + server['identifier']
+                # None is tacked on at the end here - needs further investigation
+                data = cache.get(cache_hash)
+                #print data
 
                 if get_current_server(host, port)['master_server']:
                     continue
 
                 if (host == SERVER_HOST and port == SERVER_PORT):
                     continue
-                data = open('test-files/test.txt', 'rb').read()
+
+                with open(file, "wb") as f:
+                    f.write(data)
                 print(headers)
 
                 headers = {'access_key': headers['access_key'],
@@ -71,7 +78,7 @@ class ServerTransactions:
             for server in servers:
                 host = server["host"]
                 port = server["port"]
-                delete_transaction = DeleteTransaction(write_lock, file, directory, host, port)
+                delete_transaction = DeleteTransaction(thread_lock, file, directory, host, port)
                 delete_transaction.start()
 
                 if get_current_server(host, port)['master_server']:
@@ -104,8 +111,8 @@ class Transaction(threading.Thread):
 
     def run(self):
         self.lock.acquire()
-        reference = db.writes.find_one({"filename": self.filename})
-        if (reference):
+        identifier = db.writes.find_one({"filename": self.filename})
+        if (identifier):
             write_queue.put({"filename": self.filename})
             self.lock.release()
             return
@@ -123,10 +130,10 @@ class DeleteTransaction(threading.Thread):
 
     def run(self):
         self.lock.acquire()
-        if db.files.find_one({"reference": self.filename, "directory": self.directory,
+        if db.files.find_one({"identifier": self.filename, "directory": self.directory,
                               "server": get_current_server(self.host, self.port)}):
-            db.files.remove({"reference": self.filename, "directory": self.directory,
-                              "server": get_current_server(self.host, self.port)})
+            db.files.remove({"identifier": self.filename, "directory": self.directory,
+                             "server": get_current_server(self.host, self.port)})
             os.remove(self.filename)
         self.lock.release()
 
@@ -140,17 +147,18 @@ class TransactionStatus:
     def create(name, server, status):
         hash_key = hashlib.md5()
         hash_key.update(name)
-        transaction = db.transactions.find_one({"reference": hash_key.hexdigest()})
+        transaction = db.transactions.find_one({"identifier": hash_key.hexdigest()})
         if transaction:
             transaction["ledger"] = status
         else:
-            db.transactions.insert({"reference": hash_key.hexdigest(), "ledger": status, "server-reference": server['reference']})
+            db.transactions.insert(
+                {"identifier": hash_key.hexdigest(), "ledger": status, "server-identifier": server['identifier']})
 
     @staticmethod
     def get(name):
         hash_key = hashlib.md5()
         hash_key.update(name)
-        return db.transactions.find_one({"reference": hash_key.hexdigest()})
+        return db.transactions.find_one({"identifier": hash_key.hexdigest()})
 
     @staticmethod
     def total_success_count():
@@ -164,7 +172,7 @@ class TransactionStatus:
     def total_failure_count():
         count = 0
         for transaction in db.transactions.find():
-            if transaction['ledger'] == "SUCCESS":
+            if transaction['ledger'] == "FAILURE":
                 count += 1
         return count
 
@@ -172,6 +180,6 @@ class TransactionStatus:
     def total_unknown_count():
         count = 0
         for transaction in db.transactions.find():
-            if transaction['ledger'] == "SUCCESS":
+            if transaction['ledger'] == "UNKNOWN":
                 count += 1
         return count
