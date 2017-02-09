@@ -27,41 +27,79 @@ python user.py
 ```
 
 # Setting up the Distributed File System: (WITH DOCKER)
-
-### Build the auth-server image
-
+Use "sudo" before any (or all) docker commands where applicable.
+<br/><br/>
+Ensure that you are logged in:
 ```bash
-docker build -t authserver .
+docker login
+```
+
+### Build the authentication_server image and generate container
+Build your custom image:
+```bash
+docker build -t <image_name> -f docker-authserver/Dockerfile .
+```
+List all currently available (successfully built) images:
+```bash
+docker images
+```
+Tag the image using your docker repo:
+```bash
+docker tag <image_id> <username>/<repo>:latest
+```
+Push your custom image to your docker repo:
+```bash
+docker push <username>/<repo>
+```
+Create a container (Run the image):
+<br/>
+(The following command ensures a mongod daemon is created, as opposed to a standard docker run command)
+```bash
+docker run -p 28001:27017 --name <container_name> -d <username>/<repo> --smallfiles
+```
+List all currently active containers:
+```bash
+docker ps -s
 ```
 
 ### Create the container for this image
-
+Build your custom image:
 ```bash
-docker run authserver
+docker build -t <image_name> -f docker-dirserver/Dockerfile .
 ```
-
-### Build the directory server image (2 required)
-
+List all currently available (successfully built) images:
 ```bash
-docker build -t dirserver1 -f docker-dirserver/Dockerfile .
+docker images
 ```
-
+Tag the image using your docker repo:
 ```bash
-docker build -t dirserver2 -f docker-dirserver/Dockerfile .
+docker tag <image_id> <username>/<repo>:latest
 ```
-
-### Create the containers for both of these images
-
+Push your custom image to your docker repo:
 ```bash
-docker run dirserver1
+docker push <username>/<repo>
 ```
-
+Create a container (Run the image):
+<br/>
+(The following command ensures a mongod daemon is created, as opposed to a standard docker run command)
+<br/>
+Let "X" below represent incrementing ports; (28002, 28003, 28004)
 ```bash
-docker run dirserver2
+docker run -p <X>:27017 --name <container_name> -d <username>/<repo> --smallfiles
 ```
+List all currently active containers:
+```bash
+docker ps -s
+```
+Please see the attached testing/commands.txt for more information on the exact commands issued.
 
 ### Run the user.py script to simulate test user interactions
-
 ```bash
 python user.py
 ```
+This python script will simulate file upload, download and delete operations and transactions.
+
+### Miscellaneous
+Refer to the "testing" directory to view screenshots of tests, the system in action, etc.
+<br/><br/>
+Refer to "documentation" for a detailed description of the system.

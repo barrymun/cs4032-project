@@ -1,0 +1,48 @@
+
+------------------------------------------------------------------------------------------------
+sudo docker login
+(Create account here: https://hub.docker.com)
+------------------------------------------------------------------------------------------------
+
+sudo docker images
+
+sudo docker build -t authserver -f docker-authserver/Dockerfile .
+
+sudo docker tag 06cf6dca6242 elneelo/authserver:latest
+
+sudo docker push elneelo/authserver
+
+------------------------------------------------------------------------------------------------
+Helpful Error Stuff:
+------------------------------------------------------------------------------------------------
+sudo docker rm $(sudo docker ps -a -q)
+sudo docker rmi $(sudo docker images -q)
+sudo killall mongod
+------------------------------------------------------------------------------------------------
+
+sudo docker ps -s
+
+------------------------------------------------------------------------------------------------
+*** Note here that all of the following containers make use of the same mongo port: 27017
+------------------------------------------------------------------------------------------------
+
+sudo docker run -p 28001:27017 --name mongo_instance_001 -d elneelo/authserver --smallfiles
+
+------------------------------------------------------------------------------------------------
+Stopping and Removing Unnecessary Containers:
+------------------------------------------------------------------------------------------------
+sudo docker stop d3b99e4359a8a20d75ad1da7c56086564a816ef6ee36486db458776c78720b87
+sudo docker rm d3b99e4359a8a20d75ad1da7c56086564a816ef6ee36486db458776c78720b87
+------------------------------------------------------------------------------------------------
+
+sudo docker build -t dirserver -f docker-dirserver/Dockerfile .
+
+sudo docker images
+
+sudo docker tag a32dc6d378a5 elneelo/dirserver:latest
+
+sudo docker push elneelo/dirserver
+
+sudo docker run -p 28002:27017 --name mongo_instance_002 -d elneelo/dirserver --smallfiless
+sudo docker run -p 28003:27017 --name mongo_instance_003 -d elneelo/dirserver --smallfiles
+sudo docker run -p 28004:27017 --name mongo_instance_004 -d elneelo/dirserver --smallfiles
