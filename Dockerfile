@@ -1,26 +1,12 @@
 
-FROM centos
+FROM ubuntu:14.04
 
-RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 \
+  && echo "deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list \
+  && apt-get update && apt-get -q -y install \
+    nodejs\
+    npm \
+    git \
+    mongodb-org
 
-RUN python get-pip.py && \
-
-    pip install Flask && \
-
-    pip install Flask-PyMongo && \
-
-    yum install -y gcc && \
-
-    yum install -y libffi-devel && \
-
-    yum install -y python-devel && \
-
-    yum install -y openssl-devel && \
-
-    pip install pycrypto
-
-COPY setup.py /src/setup.py
-CMD ["python","/src/setup.py"]
-
-COPY auth-server.py /src/auth-server.py
-CMD ["python","/src/auth-server.py"]
+CMD ["mongod", "--dbpath", "."]

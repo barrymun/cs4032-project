@@ -24,6 +24,6 @@ EXPOSE 27017
 
 ENTRYPOINT ["/usr/bin/mongod"]
 
-COPY directoryserver.py /src/directoryserver.py
+COPY authenticationserver.py /src/authenticationserver.py
 
-CMD ["python","/src/directoryserver.py"]
+CMD ["python","/src/authenticationserver.py"]

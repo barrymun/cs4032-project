@@ -111,11 +111,7 @@ class Transaction(threading.Thread):
 
     def run(self):
         self.lock.acquire()
-        identifier = db.writes.find_one({"filename": self.filename})
-        if (identifier):
-            write_queue.put({"filename": self.filename})
-            self.lock.release()
-            return
+        return
         self.lock.release()
 
 
